@@ -33,6 +33,7 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
 #dash-root { max-width: 1240px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-left, 0px)) 48px; }
 </style>
 <script src="assets/d3.min.js"></script>
+<script>window.SU_XLSX_BASE = "excel/";</script>
 <script src="data/data.js"></script>
 <script>
 (function () {
@@ -117,6 +118,10 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
 .su-table td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; line-height: 1.45; }
 .su-table .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .su-table td.key { font-weight: 600; white-space: nowrap; }
+.su-table td.xl { white-space: nowrap; }
+.su-table a, .su-links a { color: var(--color-fg); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--color-fg-muted); }
+.su-table a:hover, .su-links a:hover { text-decoration-color: var(--color-fg); }
+.su-links { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
 .su-pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); white-space: nowrap; }
 .su-pill.hot { color: var(--color-bad); border-color: currentColor; }
 [data-dash-source-state=empty] { color: transparent; }
@@ -182,6 +187,7 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
         <div class="su-card" id="division-table">
           <h3>สรุปรายฝ่าย</h3>
           <p class="su-note">Priority สูง = คะแนน OKR Impact + ความเสี่ยงงาน + การสืบทอดตำแหน่ง ≥ 7 จาก 9</p>
+          <p class="su-links">📥 <a class="su-xl" data-file="Executive_Summary_SU_2570.xlsx" target="_blank" rel="noopener">Executive Summary (Excel)</a><span class="su-gh"> · <a class="su-repo" target="_blank" rel="noopener">เปิด repo MTECOrg</a> · ไฟล์อยู่ใน GitHub repo แบบ Private ต้องล็อกอินบัญชีที่มีสิทธิ์</span></p>
           <div class="su-tablewrap">
             <table class="su-table" data-source="divisions" data-row-key="div">
               <thead><tr>
@@ -191,6 +197,7 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
                 <th data-field="managers" class="n">ผู้บริหาร</th>
                 <th data-field="high_priority" class="n">Priority สูง</th>
                 <th data-field="ja_hours" class="n">ชม./ปี (JA)</th>
+                <th>Skill Matrix</th>
               </tr></thead>
               <tbody data-draw="rows-divisions"></tbody>
             </table>
@@ -589,7 +596,26 @@ const suTable = (id, cols, keyCol, numCols, pillCol) => (tb) => {
   });
   tb.replaceChildren(...trs);
 };
-dash.draw('rows-divisions', suTable('divisions', ['div', 'div_th', 'staff', 'managers', 'high_priority', 'ja_hours'], 'div', ['staff', 'managers', 'high_priority', 'ja_hours']));
+const SU_REPO = 'https://github.com/surasitman/MTECOrg';
+const SU_XLSX = window.SU_XLSX_BASE || (SU_REPO + '/raw/main/excel/');
+const SU_MD = window.SU_XLSX_BASE ? null : (SU_REPO + '/blob/main/skillmatrix/');
+const suLink = (href, text) => { const a = document.createElement('a'); a.href = href; a.textContent = text; a.target = '_blank'; a.rel = 'noopener'; return a; };
+const suDivRows = suTable('divisions', ['div', 'div_th', 'staff', 'managers', 'high_priority', 'ja_hours'], 'div', ['staff', 'managers', 'high_priority', 'ja_hours']);
+dash.draw('rows-divisions', (tb) => {
+  suDivRows(tb);
+  const d = dash.data('divisions');
+  if (d.status !== 'ok') return;
+  Array.from(tb.rows).forEach((tr, i) => {
+    const c = d.data[i].div, td = document.createElement('td');
+    td.className = 'xl';
+    td.appendChild(suLink(SU_XLSX + 'Skill_Matrix_' + c + '_2570.xlsx', 'Excel'));
+    if (SU_MD) { td.append(' · '); td.appendChild(suLink(SU_MD + c + '.md', 'สรุป')); }
+    tr.appendChild(td);
+  });
+  document.querySelectorAll('a.su-xl').forEach((a) => { a.href = SU_XLSX + a.dataset.file; });
+  document.querySelectorAll('a.su-repo').forEach((a) => { a.href = SU_REPO; });
+  document.querySelectorAll('.su-gh').forEach((s) => { s.hidden = !!window.SU_XLSX_BASE; });
+});
 dash.draw('rows-top_skills', suTable('top_skills', ['skill', 'category', 'divisions', 'people', 'high_priority_rows'], 'skill', ['divisions', 'people', 'high_priority_rows']));
 dash.draw('rows-ai_roadmap', suTable('ai_roadmap', ['unit', 'div', 'people', 'l2', 'capstone_period', 'capstone', 'kr'], 'unit', ['people']));
 dash.draw('rows-duplicate_work', suTable('duplicate_work', ['work_group', 'units', 'n_divisions', 'problem', 'approach', 'priority'], 'work_group', ['n_divisions'], 'priority'));
