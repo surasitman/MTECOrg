@@ -1,0 +1,23 @@
+need,div,units,kr,status
+การบริหาร Key Account และ Stakeholder Engagement,BDD,IBL,BDD-O1-KR1,กำหนดผู้รับผิดชอบแล้ว
+การพัฒนา Business Model และ Exit Strategy,BDD,BAM,BDD-O2-KR3,กำหนดผู้รับผิดชอบแล้ว
+การพัฒนา Service Package จาก Capability ของศูนย์,BDD,CS,BDD-O2-KR1,กำหนดผู้รับผิดชอบแล้ว
+การใช้ดิจิทัลปรับปรุงงานธุรการ,GMD,"GAD, SEC",GMD-O3-KR4,กำหนดผู้รับผิดชอบแล้ว
+งานวิศวกรรมสนับสนุนโครงการวิจัย MST,GMD,ESS,GMD-O1-KR1,กำหนดผู้รับผิดชอบแล้ว
+การออกแบบหลักสูตร e-Learning,MTD,HMS,MTD-O3-KR1,กำหนดผู้รับผิดชอบแล้ว
+การผลิต Success Story และวิดีโอ Stakeholder,MTD,KMC,MTD-O6-KR1,กำหนดผู้รับผิดชอบแล้ว
+การเขียนข้อเสนอขอทุนด้านสื่อ,MTD,KMC,MTD-O8-KR1,กำหนดผู้รับผิดชอบแล้ว
+ทักษะใหม่ข้ามสายงานอย่างน้อย 1 ด้าน,MTD,ทุกงาน,MTD-O8-KR2,ยังไม่ระบุตัวบุคคล
+AI ช่วยจัดทำและตรวจสอบ TOR,RPM,RPS,RPM-O3-KR1,กำหนดผู้รับผิดชอบแล้ว
+Data Visualization สำหรับ TRM Dashboard,RPM,RGM,RPM-O2-KR1,กำหนดผู้รับผิดชอบแล้ว
+ทักษะ AI ดิจิทัล และแหล่งทุนใหม่ (> 90%),RPM,ทุกงาน,RPM-O4-KR1,กำหนดผู้รับผิดชอบแล้ว
+การประเมินผลกระทบ (Impact / SROI),PSE,OES,PSE-O1-KR2,กำหนดผู้รับผิดชอบแล้ว
+Data Literacy และ AI สำหรับรายงานพร้อมตัดสินใจ,PSE,"PSS, OES",PSE-O2-KR3,กำหนดผู้รับผิดชอบแล้ว
+มาตรฐาน ISO 14065 สำหรับการรับรอง VVB,PSE,ยังไม่ระบุ,PSE-O2-KR4,ยังไม่ระบุตัวบุคคล
+ทักษะ IT และ AI (≥ 80% ของฝ่าย),RIS,ทุกงาน,RIS-O3-KR3,กำหนดผู้รับผิดชอบแล้ว
+Foresight และการจัดทำ TRM,RIS,RISD,RIS-O1-KR2,กำหนดผู้รับผิดชอบแล้ว
+ความร่วมมือและแหล่งทุนต่างประเทศ,RIS,SAPD,RIS-O2-KR5,กำหนดผู้รับผิดชอบแล้ว
+AI เพื่อการวิเคราะห์ผลทดสอบ (14 คน),TSMA,"CBA, MMS, PHA, PHM",TSMA-O3-KR2,กำหนดผู้รับผิดชอบแล้ว
+Python สำหรับกราฟและพื้นฐาน Machine Learning,TSMA,ยังไม่ระบุ,TSMA-O3-KR2,ยังไม่ระบุตัวบุคคล
+NDT (Non-destructive testing),TSMA,ยังไม่ระบุ,TSMA-O3-KR2,ยังไม่ระบุตัวบุคคล
+การเก็บตัวอย่างน้ำ / Gas emission / Biochar / Thermal,TSMA,ยังไม่ระบุ,TSMA-O3-KR2,ยังไม่ระบุตัวบุคคล

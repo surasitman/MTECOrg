@@ -1,0 +1,10 @@
+move,from_div,to_group,units,people,change
+PSE→G1,PSE,G1,"OES, PSE, PSS, SHOD",17,รวม
+RIS→G1,RIS,G1,RISD,3,ย้าย
+RIS→G2,RIS,G2,"RIS, SAPD",5,ย้าย
+BDD→G2,BDD,G2,"BAM, IBL",13,รวม
+BDD→G3,BDD,G3,CS,5,ย้าย
+TSMA→G3,TSMA,G3,"BDT, CBA, MMS, PHA, PHM",25,รวม
+RPM→G4,RPM,G4,"GRM, RGM, RPM, RPS",26,คงเดิม
+GMD→G5,GMD,G5,"ESS, GAD, GMD, SEC",11,คงเดิม
+MTD→G6,MTD,G6,"HMS, KMC, MTD",10,คงเดิม

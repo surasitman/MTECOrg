@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MTEC Org — แผนพัฒนาบุคลากรฝ่ายสนับสนุน 2570</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Serif+Thai:wght@400;600&display=swap">
+<style>
+:root {
+  --font-anthropic-sans: 'IBM Plex Sans Thai', 'Leelawadee UI', 'Tahoma', system-ui, sans-serif;
+  --font-anthropic-serif: 'Noto Serif Thai', 'Leelawadee UI', Georgia, serif;
+  --color-bg: #f7f7f4; --color-panel: #ffffff; --color-fg: #1d2127; --color-fg-muted: #5d6470;
+  --color-border-line: #e2e1db; --color-ok: #2d7a55; --color-warn: #a86a12; --color-bad: #b4372f;
+  --cds-border: #d9d8d1; --cds-chart-grid: #ecebe5; --cds-chart-muted: #b9bcc2; --cds-chart-status-critical: #c9483d;
+  --cds-surface-popover: #ffffff; --cds-text-secondary: #5d6470; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.12);
+  --cds-dur-slow: 300ms; --cds-radius: 8px;
+  --cds-font-size-caption: 12.5px; --cds-font-size-body: 14.5px; --cds-font-size-heading: 17px; --cds-font-size-title: 28px;
+  --cds-font-weight-medium: 600;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 14px; --cds-gap-xl: 28px;
+  --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #15171a; --color-panel: #1d2024; --color-fg: #e8e9eb; --color-fg-muted: #9aa1ab;
+    --color-border-line: #30343a; --color-ok: #5cc28f; --color-warn: #e0a34a; --color-bad: #ef7a70;
+    --cds-border: #3a3f46; --cds-chart-grid: #2a2e33; --cds-chart-muted: #5c626b; --cds-chart-status-critical: #e5675c;
+    --cds-surface-popover: #23272c; --cds-text-secondary: #9aa1ab; color-scheme: dark;
+  }
+}
+[hidden] { display: none !important; }
+html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); }
+#dash-root { max-width: 1240px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-left, 0px)) 48px; }
+</style>
+<script src="assets/d3.min.js"></script>
+<script src="data/data.js"></script>
+<script>
+(function () {
+  const raw = window.MTEC_DATA || {};
+  const calcs = {}, draws = [], onDataFns = [];
+  let params = {};
+  const cache = {};
+  const colors = ['#2f6fb0', '#c8743a', '#3b9a78', '#8a5cc2', '#c4508a', '#5f8a2e', '#b5952a', '#4a8fa8'];
+  const data = (id) => {
+    if (raw[id]) return {status: 'ok', data: raw[id].rows, columns: raw[id].columns, meta: [], refreshing: false};
+    if (calcs[id]) {
+      if (!cache[id]) {
+        try { cache[id] = calcs[id].fn(...calcs[id].inputs.map((x) => data(x).data)); }
+        catch (e) { console.error('calc', id, e); cache[id] = []; }
+      }
+      return {status: 'ok', data: cache[id], columns: [], meta: [], refreshing: false};
+    }
+    return {status: 'missing', data: [], columns: [], meta: [], refreshing: false};
+  };
+  let scheduled = false;
+  const render = () => {
+    scheduled = false;
+    onDataFns.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
+    draws.forEach(([name, fn]) => {
+      document.querySelectorAll(`[data-draw="${name}"]`).forEach((el) => {
+        if (el.closest('[hidden]')) return;
+        try { fn(el); } catch (e) { console.error('draw', name, e); }
+      });
+    });
+  };
+  const schedule = () => { if (!scheduled) { scheduled = true; requestAnimationFrame(render); } };
+  window.dash = {
+    data, colors,
+    calc: (id, def) => { calcs[id] = def; },
+    loader: () => {},
+    draw: (name, fn) => { if (fn) draws.push([name, fn]); else schedule(); },
+    onData: (fn) => { onDataFns.push(fn); },
+    params: () => ({...params}),
+    setParams: (p) => { Object.entries(p).forEach(([k, v]) => { if (v === null || v === undefined) delete params[k]; else params[k] = v; }); schedule(); },
+    resetParams: () => { params = {}; schedule(); },
+    setLink: (name) => { try { history.replaceState(null, '', '#' + name); } catch (e) {} },
+    refresh: () => {}
+  };
+  window.addEventListener('DOMContentLoaded', () => {
+    new MutationObserver(schedule).observe(document.body, {attributes: true, attributeFilter: ['hidden'], subtree: true});
+    window.addEventListener('resize', schedule);
+    render();
+  });
+})();
+</script>
+</head>
+<body>
+<div id="dash-root">
+
+<style>
+.su { display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+.su-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-xs); text-wrap: balance; }
+.su-take { margin: 0; max-width: 70ch; color: var(--color-fg); line-height: 1.6; }
+.su .su-take b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.su-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr)); gap: var(--cds-gap-md); }
+.su-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); align-content: start; }
+.su-tile-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.su-tile-num { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.1; min-height: 1.1em; }
+.su-tile-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.su-sec { display: grid; gap: var(--cds-gap-md); }
+.su-sec > h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.su-sec > p { margin: 0; color: var(--color-fg-muted); max-width: 75ch; line-height: 1.55; }
+.su-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+.su-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); min-width: 0; align-content: start; }
+.su-card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.su-note { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; }
+.su-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.su-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.su-sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.su-chart { position: relative; min-height: 260px; }
+.su-gantt { position: relative; min-height: 560px; }
+.su-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
+.su-tip .k { color: var(--cds-text-secondary); }
+.su-tablewrap { overflow-x: auto; }
+.su-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-body); }
+.su-table th { text-align: left; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.su-table td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; line-height: 1.45; }
+.su-table .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.su-table td.key { font-weight: 600; white-space: nowrap; }
+.su-pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); white-space: nowrap; }
+.su-pill.hot { color: var(--color-bad); border-color: currentColor; }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (max-width: 640px) { .su-hide-sm { display: none; } }
+.su-tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); }
+.su-tab { appearance: none; background: none; border: 0; border-bottom: 2px solid transparent; padding: var(--cds-pad-sm) var(--cds-pad-md); font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg-muted); cursor: pointer; margin-bottom: -1px; }
+.su-tab[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.su-tab:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.su-page { display: grid; gap: var(--cds-gap-xl); }
+.su-flow { position: relative; min-height: 440px; }
+.su-pchart { position: relative; min-height: 250px; }
+.su-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.su-controls select, .su-controls input { font: inherit; font-size: var(--cds-font-size-body); padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); min-width: 0; }
+.su-controls input { flex: 1 1 14rem; }
+.su-scroll { max-height: 26rem; overflow: auto; }
+.su-scroll th { position: sticky; top: 0; background: var(--color-panel); z-index: 1; }
+.su-people tbody tr { cursor: pointer; }
+.su-people tbody tr:hover td { background: var(--cds-chart-grid); }
+.su-people tbody tr.sel td { background: var(--cds-chart-grid); font-weight: 600; }
+.su-person-head { margin: 0; line-height: 1.6; }
+.su-privacy { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-warn); }
+.su-pill.ok { color: var(--color-ok); border-color: currentColor; }
+.su-pill.warn { color: var(--color-warn); border-color: currentColor; }
+</style>
+
+<div class="su">
+  <header class="su-head">
+    <h1>แผนพัฒนาบุคลากรฝ่ายสนับสนุน ศว. ปีงบประมาณ 2570</h1>
+    <p class="su-take">ฝ่ายสนับสนุน 7 ฝ่ายมีพนักงาน <b data-draw="num" data-source="totals" data-field="staff">—</b> คน มีรายการทักษะที่ต้องเร่งพัฒนา <b data-draw="num" data-source="totals" data-field="high_priority">—</b> รายการ ความเสี่ยงเร่งด่วนที่สุดคืองานที่อยู่กับคนเดียว ซึ่งกระจุกที่ฝ่าย <b data-draw="txt" data-source="kp_top" data-field="div">—</b> (<b data-draw="num" data-source="kp_top" data-field="key_person">—</b> คน) — ลำดับแรกคือ Cross-training, หลักสูตร AI ที่ลดงานเอกสาร และการลดงานซ้ำซ้อนก่อนปรับโครงสร้าง</p>
+  </header>
+
+  <nav class="su-tabs" role="tablist" aria-label="หัวข้อ">
+    <button class="su-tab" role="tab" data-tab="overview" aria-selected="true">ภาพรวม</button>
+    <button class="su-tab" role="tab" data-tab="skills" aria-selected="false">ทักษะ</button>
+    <button class="su-tab" role="tab" data-tab="ai-roadmap" aria-selected="false">AI Roadmap</button>
+    <button class="su-tab" role="tab" data-tab="duplicates" aria-selected="false">งานซ้ำซ้อน</button>
+    <button class="su-tab" role="tab" data-tab="structure" aria-selected="false">โครงสร้างองค์กร</button>
+    <button class="su-tab" role="tab" data-tab="okr" aria-selected="false">OKR 2570</button>
+    <button class="su-tab" role="tab" data-tab="people" aria-selected="false">รายบุคคล</button>
+    <button class="su-tab" role="tab" data-tab="gaps" aria-selected="false">ข้อมูลที่ขาด</button>
+  </nav>
+
+  <section class="su-page" id="overview" data-page role="tabpanel">
+    <div class="su-tiles" id="headline">
+      <div class="su-tile"><div class="su-tile-label">พนักงานในแผน</div><div class="su-tile-num" data-draw="num" data-source="totals" data-field="staff">—</div><div class="su-tile-note">พนักงาน สวทช. ณ 6 พ.ย. 2569</div></div>
+      <div class="su-tile"><div class="su-tile-label">รายการ คน × ทักษะ</div><div class="su-tile-num" data-draw="num" data-source="totals" data-field="skill_rows">—</div><div class="su-tile-note">จาก Role Profile, JA และ OKR</div></div>
+      <div class="su-tile"><div class="su-tile-label">Priority สูง</div><div class="su-tile-num" data-draw="num" data-source="totals" data-field="high_priority">—</div><div class="su-tile-note">ยังไม่รวม Gap จริง (รอประเมิน)</div></div>
+      <div class="su-tile"><div class="su-tile-label">ชั่วโมงงานต่อปีตาม JA</div><div class="su-tile-num" data-draw="num" data-source="totals" data-field="ja_hours">—</div><div class="su-tile-note">ชั่วโมง/ปี รวม 7 ฝ่าย</div></div>
+      <div class="su-tile"><div class="su-tile-label">ภาระงานเกิน 2,000 ชม./ปี</div><div class="su-tile-num" data-draw="num" data-source="totals" data-field="over_2000h">—</div><div class="su-tile-note">คน (ตาม JA)</div></div>
+      <div class="su-tile"><div class="su-tile-label">งานที่อยู่กับคนเดียว</div><div class="su-tile-num" data-draw="num" data-source="totals" data-field="key_person">—</div><div class="su-tile-note">คน ทำงานคนเดียว ≥ 500 ชม./ปี</div></div>
+    </div>
+    <div class="su-sec" id="risk">
+      <h2>กำลังคนและความเสี่ยงรายฝ่าย</h2>
+      <p>TSMA มีงานที่อยู่กับคนเดียวมากที่สุด ขณะที่ BDD และ RPM มีคนที่ภาระงานเกิน 2,000 ชม./ปีมากที่สุด ความเสี่ยงสองแบบนี้แก้ต่างกัน: แบบแรกใช้ผู้สำรองและบันทึกความรู้ แบบหลังใช้การกระจายงานและลดงานเอกสาร</p>
+      <div class="su-grid">
+        <div class="su-card" id="risk-chart">
+          <h3>ความเสี่ยงด้านบุคลากรรายฝ่าย</h3>
+          <p class="su-note">จำนวนคน · คำนวณจากชั่วโมงงานรายบุคคลใน Job Analysis</p>
+          <div class="su-legend"><span><i class="su-sw" data-swatch="0"></i>ทำงานคนเดียว ≥ 500 ชม./ปี</span><span><i class="su-sw" data-swatch="1"></i>ภาระงานรวม &gt; 2,000 ชม./ปี</span></div>
+          <div class="su-chart" data-draw="riskbars" data-source="divisions">—</div>
+        </div>
+        <div class="su-card" id="division-table">
+          <h3>สรุปรายฝ่าย</h3>
+          <p class="su-note">Priority สูง = คะแนน OKR Impact + ความเสี่ยงงาน + การสืบทอดตำแหน่ง ≥ 7 จาก 9</p>
+          <div class="su-tablewrap">
+            <table class="su-table" data-source="divisions" data-row-key="div">
+              <thead><tr>
+                <th data-field="div">ฝ่าย</th>
+                <th data-field="div_th" class="su-hide-sm">ชื่อฝ่าย</th>
+                <th data-field="staff" class="n">คน</th>
+                <th data-field="managers" class="n">ผู้บริหาร</th>
+                <th data-field="high_priority" class="n">Priority สูง</th>
+                <th data-field="ja_hours" class="n">ชม./ปี (JA)</th>
+              </tr></thead>
+              <tbody data-draw="rows-divisions"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="su-page" id="skills" data-page role="tabpanel" hidden>
+    <div class="su-sec">
+      <h2>ระดับความเร่งด่วนของการพัฒนารายฝ่าย</h2>
+      <p>TSMA มีสัดส่วนรายการ Priority สูงมากที่สุด เพราะทักษะเทคนิคหลายรายการอยู่กับผู้ปฏิบัติงานคนเดียวและผูกกับรายรับของฝ่าย ส่วน RIS มีรายการ Priority สูงน้อยเพราะทีมเล็กและความเสี่ยงงานต่ำกว่า</p>
+      <div class="su-card" id="priority-chart">
+        <div class="su-legend"><span><i class="su-sw" data-swatch-var="--cds-chart-status-critical"></i>สูง</span><span><i class="su-sw" data-swatch="0"></i>ปานกลาง</span><span><i class="su-sw" data-swatch-var="--cds-chart-muted"></i>ต่ำ</span></div>
+        <div class="su-pchart" data-draw="prio" data-source="priority_by_div">—</div>
+        <p class="su-note">จำนวนรายการ คน × ทักษะ แยกตาม Strategic Priority · ระดับปัจจุบันยังไม่ได้ประเมิน</p>
+      </div>
+    </div>
+    <div class="su-sec" id="top-skills">
+      <h2>ทักษะที่ทุกฝ่ายต้องใช้</h2>
+      <p>ทักษะที่ปรากฏใน 3 ฝ่ายขึ้นไป ควรจัดพัฒนาร่วมกันระดับศูนย์แทนการแยกจัดรายฝ่าย</p>
+      <div class="su-card">
+        <div class="su-tablewrap">
+          <table class="su-table" data-source="top_skills" data-row-key="skill">
+            <thead><tr>
+              <th data-field="skill">ทักษะ</th>
+              <th data-field="category" class="su-hide-sm">หมวด</th>
+              <th data-field="divisions" class="n">ฝ่าย</th>
+              <th data-field="people" class="n">คน</th>
+              <th data-field="high_priority_rows" class="n">Priority สูง</th>
+            </tr></thead>
+            <tbody data-draw="rows-top_skills"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="su-sec" id="okr-needs">
+      <h2>ทักษะใหม่ที่ OKR 2569 ระบุไว้</h2>
+      <p>OKR ของแต่ละฝ่ายระบุทักษะ mission ใหม่ไว้ชัดเจน บางรายการยังไม่มีผู้รับผิดชอบรายบุคคล โดยเฉพาะทักษะเทคนิคใหม่ของ TSMA</p>
+      <div class="su-card">
+        <div class="su-tablewrap">
+          <table class="su-table" data-source="okr_skill_needs" data-row-key="need">
+            <thead><tr>
+              <th data-field="need">ทักษะที่ต้องการ</th>
+              <th data-field="div">ฝ่าย</th>
+              <th data-field="units" class="su-hide-sm">หน่วยงาน</th>
+              <th data-field="kr" class="su-hide-sm">KR</th>
+              <th data-field="status">สถานะ</th>
+            </tr></thead>
+            <tbody data-draw="rows-okr_skill_needs"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="su-page" id="ai-roadmap" data-page role="tabpanel" hidden>
+    <div class="su-sec">
+      <h2>Roadmap การอบรม AI รายหน่วยงาน</h2>
+      <p>ทุกคนเรียน L1 Core (6 ชม.) ภายใน มี.ค. 2570 แล้วเรียน L2 ตามงานของหน่วยงาน (12–18 ชม.) และส่ง Capstone จากงานจริงภายใน ส.ค. 2570 RPS เป็นหน่วยนำร่อง ส่วน TSMA แบ่ง 2 รอบเพื่อให้ห้องปฏิบัติการยังให้บริการได้</p>
+      <div class="su-card" id="gantt-card">
+        <div class="su-legend"><span><i class="su-sw" data-swatch="0"></i>L1 Core</span><span><i class="su-sw" data-swatch="1"></i>L2 Track</span><span><i class="su-sw" data-swatch="2"></i>Capstone</span><span><i class="su-sw" data-swatch="3"></i>L3 Builder</span></div>
+        <div class="su-gantt" data-draw="gantt" data-source="ai_roadmap">—</div>
+      </div>
+      <div class="su-card" id="capstone-table">
+        <h3>ผลงาน Capstone และ KR ที่ผูกไว้</h3>
+        <div class="su-tablewrap">
+          <table class="su-table" data-source="ai_roadmap" data-row-key="unit">
+            <thead><tr>
+              <th data-field="unit">หน่วยงาน</th>
+              <th data-field="div">ฝ่าย</th>
+              <th data-field="people" class="n">คน</th>
+              <th data-field="l2" class="su-hide-sm">L2</th>
+              <th data-field="capstone_period">ช่วง Capstone</th>
+              <th data-field="capstone">ผลงาน Capstone</th>
+              <th data-field="kr" class="su-hide-sm">KR</th>
+            </tr></thead>
+            <tbody data-draw="rows-ai_roadmap"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="su-page" id="duplicates" data-page role="tabpanel" hidden>
+    <div class="su-sec">
+      <h2>งานซ้ำซ้อนข้ามหน่วยงาน</h2>
+      <p>จาก Job Analysis พบงาน 8 กลุ่มที่ทำซ้ำในหลายหน่วยงาน เริ่มจาก Quick win 3 เรื่องที่กระทบลูกค้าและรายรับมากที่สุด แล้วจัด workshop ให้เจ้าของงานยืนยันกระบวนการจริงก่อนตัดสินใจรวมงาน</p>
+      <div class="su-card" id="duplicate-table">
+        <div class="su-tablewrap">
+          <table class="su-table" data-source="duplicate_work" data-row-key="work_group">
+            <thead><tr>
+              <th data-field="work_group">กลุ่มงาน</th>
+              <th data-field="units" class="su-hide-sm">หน่วยงานที่ทำ</th>
+              <th data-field="n_divisions" class="n">ฝ่าย</th>
+              <th data-field="problem" class="su-hide-sm">ปัญหา</th>
+              <th data-field="approach">แนวทาง</th>
+              <th data-field="priority">ลำดับ</th>
+            </tr></thead>
+            <tbody data-draw="rows-duplicate_work"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="su-page" id="structure" data-page role="tabpanel" hidden>
+    <div class="su-sec">
+      <h2>ข้อเสนอปรับโครงสร้างเพื่อลดความซ้ำซ้อน</h2>
+      <p>จัดกลุ่มตาม value chain ของฝ่ายสนับสนุน (Strategy → Delivery → Impact บนฐาน Efficiency) จาก <b data-draw="num" data-source="org_tot" data-field="divisions_now">—</b> ฝ่ายเหลือ <b data-draw="num" data-source="org_tot" data-field="groups">—</b> ฝ่าย ย้ายสังกัด <b data-draw="num" data-source="org_tot" data-field="moved">—</b> คน และงานซ้ำซ้อน <b data-draw="num" data-source="org_tot" data-field="clusters">—</b> กลุ่มมีเจ้าของที่เดียว — ทำเป็นทีมเสมือนก่อน แล้วปรับผังทางการพร้อมปีงบ 2571</p>
+      <div class="su-card" id="org-flow">
+        <h3>จากโครงสร้างปัจจุบันสู่โครงสร้างที่เสนอ</h3>
+        <p class="su-note">ความหนาของเส้น = จำนวนคน · เส้นสีเข้ม = หน่วยงานที่ย้ายสังกัด</p>
+        <div class="su-flow" data-draw="orgflow" data-source="org_moves org_groups">—</div>
+      </div>
+      <div class="su-card" id="new-units">
+        <h3>หน่วยงานในโครงสร้างใหม่และผู้รับผิดชอบ</h3>
+        <p class="su-note">หัวหน้างานใช้ผู้จัดการเดิมของหน่วยงานนั้น · "ว่าง — เสนอแต่งตั้ง" คือหน่วยงานที่ปัจจุบันไม่มีผู้จัดการ · ผอ.ฝ่าย G2 เป็นข้อเสนอที่ต้องตัดสินใจระดับผู้บริหารศูนย์</p>
+        <div class="su-tablewrap su-scroll">
+          <table class="su-table" data-source="new_units" data-row-key="unit_code">
+            <thead><tr>
+              <th data-field="unit_code">รหัส</th>
+              <th data-field="unit_name">หน่วยงาน</th>
+              <th data-field="head">หัวหน้า</th>
+              <th data-field="people" class="n">คน</th>
+              <th data-field="from_units" class="su-hide-sm">มาจาก</th>
+              <th data-field="change">การเปลี่ยนแปลง</th>
+              <th data-field="functions" class="su-hide-sm">หน้าที่หลัก</th>
+            </tr></thead>
+            <tbody data-draw="rows-new_units"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="su-card" id="new-people">
+        <h3>บุคลากรรายคนในโครงสร้างใหม่</h3>
+        <div class="su-controls">
+          <select class="su-grp" data-draw="grp-select" data-source="org_groups" aria-label="ฝ่ายที่เสนอ"></select>
+          <select class="su-chg" aria-label="การเปลี่ยนแปลง">
+            <option value="">ทุกการเปลี่ยนแปลง</option>
+            <option value="ย้าย">เฉพาะคนที่ย้ายสังกัด</option>
+            <option value="รวม">เฉพาะหน่วยงานที่รวม</option>
+            <option value="คงเดิม">คงเดิม</option>
+            <option value="ใหม่">หน่วยงานใหม่</option>
+          </select>
+        </div>
+        <div class="su-tablewrap su-scroll">
+          <table class="su-table" data-source="new_people" data-row-key="id">
+            <thead><tr>
+              <th data-field="id">รหัส</th>
+              <th data-field="name">ชื่อ</th>
+              <th data-field="position" class="su-hide-sm">ตำแหน่ง</th>
+              <th data-field="old_unit">สังกัดเดิม</th>
+              <th data-field="new_unit_code">หน่วยงานใหม่</th>
+              <th data-field="new_unit" class="su-hide-sm">ชื่อหน่วยงานใหม่</th>
+              <th data-field="change">การเปลี่ยนแปลง</th>
+            </tr></thead>
+            <tbody data-draw="rows-new_people"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="su-grid">
+        <div class="su-card" id="org-groups">
+          <h3>ฝ่ายที่เสนอและงานซ้ำซ้อนที่แก้ได้</h3>
+          <div class="su-tablewrap">
+            <table class="su-table" data-source="org_groups" data-row-key="group">
+              <thead><tr>
+                <th data-field="group">กลุ่ม</th>
+                <th data-field="name">ชื่อฝ่ายที่เสนอ</th>
+                <th data-field="director">ผู้อำนวยการฝ่าย</th>
+                <th data-field="units" class="su-hide-sm">หน่วยงาน</th>
+                <th data-field="fixes">งานซ้ำซ้อนที่แก้</th>
+              </tr></thead>
+              <tbody data-draw="rows-org_groups"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="su-card" id="org-phases">
+          <h3>ลำดับดำเนินการ</h3>
+          <div class="su-tablewrap">
+            <table class="su-table" data-source="org_phases" data-row-key="step">
+              <thead><tr>
+                <th data-field="step">ขั้น</th>
+                <th data-field="period">ช่วง</th>
+                <th data-field="action">สิ่งที่ทำ</th>
+                <th data-field="gate" class="su-hide-sm">ตัววัดก่อนไปขั้นถัดไป</th>
+              </tr></thead>
+              <tbody data-draw="rows-org_phases"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <p class="su-note">ข้อควรระวัง: ชั่วโมงที่ลดได้ควรย้ายไปทำงาน mission ไม่ใช่ลดคน · การรวม RIS กระทบตำแหน่งผู้อำนวยการฝ่าย ต้องหารือระดับผู้บริหารศูนย์ก่อน · ต้องแก้ความเสี่ยงงานที่อยู่กับคนเดียวก่อนย้ายคน · ข้อเสนอมาจากเอกสาร JA/JD/OKR ยังไม่รวมระเบียบการตั้ง/ยุบหน่วยงานของ สวทช.</p>
+    </div>
+  </section>
+
+  <section class="su-page" id="okr" data-page role="tabpanel" hidden>
+    <div class="su-sec">
+      <h2>OKR ปีงบประมาณ 2570 รายฝ่าย (ร่าง)</h2>
+      <p>จัดตามฝ่ายปัจจุบัน 7 ฝ่าย เพราะโครงสร้างใหม่มีผลปีงบ 2571 แต่ละ KR ระบุกลุ่มในโครงสร้างใหม่ไว้แล้วเพื่อส่งต่อได้ทันที ค่าฐาน 2569 มาจาก OKR 2569 ของแต่ละฝ่าย ส่วนเป้า 2570 เป็นข้อเสนอ ด้านการเงินคงระดับเดิมจนกว่าจะได้ผลจริงปี 2569 และ KR ใหม่มาจากผลวิเคราะห์ Skill Matrix, JA และงานซ้ำซ้อน</p>
+      <div class="su-card" id="okr-mix">
+        <h3>ที่มาของ KR รายฝ่าย</h3>
+        <div class="su-legend"><span><i class="su-sw" data-swatch-var="--cds-chart-muted"></i>สานต่อ OKR 2569</span><span><i class="su-sw" data-swatch="0"></i>ใหม่: ลดงานซ้ำซ้อน</span><span><i class="su-sw" data-swatch="1"></i>ใหม่: AI และทักษะ</span><span><i class="su-sw" data-swatch="2"></i>ใหม่: ความต่อเนื่องของงาน</span></div>
+        <div class="su-pchart" data-draw="okrmix" data-source="okr2570">—</div>
+        <p class="su-note">จำนวน KR · KR ที่สานต่อและเพิ่มมิติใหม่นับตามที่มาหลัก (สานต่อ)</p>
+      </div>
+      <div class="su-controls">
+        <select class="su-okrdiv" data-draw="okrdiv-select" data-source="divisions" aria-label="ฝ่ายสำหรับ OKR"></select>
+      </div>
+      <div class="su-card" id="okr-table">
+        <div class="su-tablewrap su-scroll">
+          <table class="su-table" data-source="okr2570" data-row-key="kr_id">
+            <thead><tr>
+              <th data-field="kr_id">KR</th>
+              <th data-field="objective">Objective</th>
+              <th data-field="kr">Key Result</th>
+              <th data-field="baseline_2569" class="su-hide-sm">ฐาน 2569</th>
+              <th data-field="target_2570">เป้า 2570 (เสนอ)</th>
+              <th data-field="owner_units" class="su-hide-sm">ผู้รับผิดชอบ</th>
+              <th data-field="basis">ที่มา</th>
+              <th data-field="center_link" class="su-hide-sm">เชื่อม OKR ศูนย์</th>
+            </tr></thead>
+            <tbody data-draw="rows-okr2570"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="su-page" id="people" data-page role="tabpanel" hidden>
+    <div class="su-sec">
+      <h2>ข้อมูลรายบุคคล</h2>
+      <p>เลือกฝ่ายหรือค้นหาชื่อ แล้วคลิกแถวเพื่อดูทักษะ ระดับเป้าหมาย และแผนพัฒนา 70:20:10 ของคนนั้น ระดับเป้าหมายมาจาก Role Profile ตาม Personal Grade ส่วนระดับปัจจุบันรอหัวหน้างานประเมินในไฟล์ Skill Matrix</p>
+      <p class="su-privacy">ข้อมูลส่วนบุคคล — ใช้เพื่อการพัฒนาบุคลากรเท่านั้น ทุกคนที่เปิดหน้านี้ได้จะเห็นข้อมูลทั้งหมด</p>
+      <div class="su-controls">
+        <select class="su-div" data-draw="div-select" data-source="divisions" aria-label="ฝ่าย"></select>
+        <input class="su-search" type="search" placeholder="ค้นหาชื่อ ตำแหน่ง งาน หรือรหัส" aria-label="ค้นหาบุคลากร">
+      </div>
+      <div class="su-card" id="people-table">
+        <h3>บุคลากร</h3>
+        <p class="su-note">Priority สูง = จำนวนทักษะที่ควรพัฒนาก่อน · ชม./ปี จาก Job Analysis (บางคนไม่พบใน JA)</p>
+        <div class="su-tablewrap su-scroll">
+          <table class="su-table su-people" data-source="people" data-row-key="id">
+            <thead><tr>
+              <th data-field="id">รหัส</th>
+              <th data-field="name">ชื่อ</th>
+              <th data-field="div" class="su-hide-sm">ฝ่าย</th>
+              <th data-field="sec">งาน</th>
+              <th data-field="position" class="su-hide-sm">ตำแหน่ง</th>
+              <th data-field="grade" class="n">Grade</th>
+              <th data-field="high" class="n">Priority สูง</th>
+              <th data-field="ja_hours" class="n su-hide-sm">ชม./ปี</th>
+              <th data-field="risk">ความเสี่ยง</th>
+            </tr></thead>
+            <tbody data-draw="rows-people"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="su-card" id="person-detail">
+        <h3>แผนพัฒนารายบุคคล</h3>
+        <p class="su-note su-pick-hint">คลิกชื่อในตารางด้านบนเพื่อดูรายละเอียด</p>
+        <p class="su-person-head" data-draw="person-head" data-source="people">—</p>
+        <div class="su-tablewrap su-scroll">
+          <table class="su-table" data-source="person_skills" data-row-key="id,code">
+            <thead><tr>
+              <th data-field="code" class="su-hide-sm">รหัสทักษะ</th>
+              <th data-field="skill">ทักษะ</th>
+              <th data-field="category" class="su-hide-sm">หมวด</th>
+              <th data-field="target" class="n">เป้าหมาย</th>
+              <th data-field="priority">Priority</th>
+              <th data-field="kr" class="su-hide-sm">KR</th>
+              <th data-field="action">แผนพัฒนา (70:20:10)</th>
+              <th data-field="due" class="su-hide-sm">กำหนดเสร็จ</th>
+            </tr></thead>
+            <tbody data-draw="rows-person"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="su-page" id="gaps" data-page role="tabpanel" hidden>
+    <div class="su-sec">
+      <h2>ข้อมูลที่ต้องเติมเพื่อให้แผนสมบูรณ์</h2>
+      <p>ตัวเลขบนหน้านี้ใช้ข้อมูลเท่าที่มี ระดับงานใช้ Personal Grade จาก StaffList (6 พ.ย. 2569) แล้ว เหลือ 3 คนที่ยังไม่มีข้อมูล และ OKR อ้างอิงปีงบ 2569 รายการต่อไปนี้จะเปลี่ยนผลวิเคราะห์เมื่อได้มา</p>
+      <div class="su-card" id="gaps-table">
+        <div class="su-tablewrap">
+          <table class="su-table" data-source="data_gaps" data-row-key="need">
+            <thead><tr>
+              <th data-field="need">ข้อมูลที่ต้องขอ</th>
+              <th data-field="impact">ผลกระทบ</th>
+              <th data-field="owner">ผู้ให้ข้อมูล</th>
+            </tr></thead>
+            <tbody data-draw="rows-data_gaps"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+dash.calc('totals', {
+  title: 'ยอดรวม 7 ฝ่าย',
+  description: 'ผลรวมของแต่ละคอลัมน์ในภาพรวมรายฝ่าย',
+  inputs: ['divisions'],
+  fn: (divisions) => {
+    const sum = (k) => divisions.reduce((s, r) => s + Number(r[k]), 0);
+    return [{staff: sum('staff'), skill_rows: sum('skill_rows'), high_priority: sum('high_priority'), ja_hours: sum('ja_hours'), over_2000h: sum('over_2000h'), key_person: sum('key_person')}];
+  }
+});
+dash.calc('kp_top', {
+  title: 'ฝ่ายที่มีงานอยู่กับคนเดียวมากที่สุด',
+  description: 'ฝ่ายที่มีจำนวนคนทำงานคนเดียว ≥ 500 ชม./ปี สูงสุด',
+  inputs: ['divisions'],
+  fn: (divisions) => {
+    const top = divisions.slice().sort((a, b) => Number(b.key_person) - Number(a.key_person))[0];
+    return top ? [{div: top.div, key_person: Number(top.key_person)}] : [];
+  }
+});
+
+dash.calc('org_tot', {
+  title: 'สรุปข้อเสนอโครงสร้าง',
+  description: 'จำนวนฝ่ายก่อน/หลัง คนที่ย้ายสังกัด และจำนวนกลุ่มงานซ้ำซ้อน',
+  inputs: ['org_moves', 'duplicate_work'],
+  fn: (org_moves, duplicate_work) => [{
+    divisions_now: new Set(org_moves.map((m) => m.from_div)).size,
+    groups: new Set(org_moves.map((m) => m.to_group)).size,
+    moved: org_moves.filter((m) => m.change === 'ย้าย').reduce((s, m) => s + Number(m.people), 0),
+    clusters: duplicate_work.length
+  }]
+});
+
+window.suFmt = d3.format(',');
+window.suTip = (box) => {
+  const t = document.createElement('div');
+  t.className = 'su-tip'; t.hidden = true; box.appendChild(t);
+  return {
+    show(ev, head, line) {
+      const k = document.createElement('div'); k.className = 'k'; k.textContent = head;
+      const v = document.createElement('div'); v.textContent = line;
+      t.replaceChildren(k, v); t.hidden = false;
+      const r = box.getBoundingClientRect();
+      let x = ev.clientX - r.left + 12, y = ev.clientY - r.top + 12;
+      const w = t.offsetWidth, h = t.offsetHeight;
+      if (x + w > r.width) x = Math.max(0, ev.clientX - r.left - w - 12);
+      if (y + h > r.height) y = Math.max(0, ev.clientY - r.top - h - 12);
+      t.style.left = x + 'px'; t.style.top = y + 'px';
+    },
+    hide() { t.hidden = true; }
+  };
+};
+
+document.querySelectorAll('[data-swatch]').forEach((s) => { s.style.background = dash.colors[Number(s.dataset.swatch)]; });
+document.querySelectorAll('[data-swatch-var]').forEach((s) => { s.style.background = `var(${s.dataset.swatchVar})`; });
+
+const suPages = () => Array.from(document.querySelectorAll('[data-page]')).map((p) => p.id);
+window.suShow = (id, link) => {
+  if (!suPages().includes(id)) id = 'overview';
+  window.suTabNow = id;
+  document.querySelectorAll('[data-page]').forEach((p) => { p.hidden = p.id !== id; });
+  document.querySelectorAll('.su-tab').forEach((b) => { b.setAttribute('aria-selected', String(b.dataset.tab === id)); });
+  if (link) dash.setLink(id);
+};
+document.querySelectorAll('.su-tab').forEach((b) => b.addEventListener('click', () => suShow(b.dataset.tab, true)));
+suShow(location.hash.slice(1) || 'overview', false);
+dash.onData(() => { suShow(window.suTabNow || 'overview', false); });
+
+dash.draw('num', (el) => {
+  const d = dash.data(el.dataset.source);
+  const row = d.status === 'ok' ? d.data[0] : null;
+  el.textContent = row && row[el.dataset.field] != null ? suFmt(Number(row[el.dataset.field])) : '—';
+});
+dash.draw('txt', (el) => {
+  const d = dash.data(el.dataset.source);
+  const row = d.status === 'ok' ? d.data[0] : null;
+  el.textContent = row ? String(row[el.dataset.field]) : '—';
+});
+
+const suTable = (id, cols, keyCol, numCols, pillCol) => (tb) => {
+  const d = dash.data(id);
+  if (d.status !== 'ok') { tb.replaceChildren(); return; }
+  const trs = d.data.map((r) => {
+    const tr = document.createElement('tr');
+    cols.forEach((c) => {
+      const td = document.createElement('td');
+      const v = r[c] == null ? '' : r[c];
+      if (numCols.includes(c)) { td.className = 'n'; td.textContent = v === '' ? '' : suFmt(Number(v)); }
+      else if (c === pillCol) { const s = document.createElement('span'); s.className = 'su-pill' + (String(v).startsWith('Quick') ? ' hot' : String(v).startsWith('ยังไม่') ? ' warn' : String(v).startsWith('กำหนด') ? ' ok' : ''); s.textContent = v; td.appendChild(s); }
+      else td.textContent = v;
+      if (c === keyCol) td.classList.add('key');
+      if (['div_th', 'category', 'units', 'problem', 'l2', 'kr'].includes(c)) td.classList.add('su-hide-sm');
+      tr.appendChild(td);
+    });
+    return tr;
+  });
+  tb.replaceChildren(...trs);
+};
+dash.draw('rows-divisions', suTable('divisions', ['div', 'div_th', 'staff', 'managers', 'high_priority', 'ja_hours'], 'div', ['staff', 'managers', 'high_priority', 'ja_hours']));
+dash.draw('rows-top_skills', suTable('top_skills', ['skill', 'category', 'divisions', 'people', 'high_priority_rows'], 'skill', ['divisions', 'people', 'high_priority_rows']));
+dash.draw('rows-ai_roadmap', suTable('ai_roadmap', ['unit', 'div', 'people', 'l2', 'capstone_period', 'capstone', 'kr'], 'unit', ['people']));
+dash.draw('rows-duplicate_work', suTable('duplicate_work', ['work_group', 'units', 'n_divisions', 'problem', 'approach', 'priority'], 'work_group', ['n_divisions'], 'priority'));
+dash.draw('rows-data_gaps', suTable('data_gaps', ['need', 'impact', 'owner'], 'need', []));
+dash.draw('rows-okr_skill_needs', suTable('okr_skill_needs', ['need', 'div', 'units', 'kr', 'status'], 'need', [], 'status'));
+dash.draw('rows-org_groups', suTable('org_groups', ['group', 'name', 'director', 'units', 'fixes'], 'group', []));
+dash.draw('rows-org_phases', suTable('org_phases', ['step', 'period', 'action', 'gate'], 'step', []));
+
+// ---- people tab
+const suSearch = document.querySelector('.su-search');
+if (suSearch) {
+  suSearch.addEventListener('input', () => dash.setParams({q: suSearch.value.trim() || null}));
+}
+document.querySelectorAll('.su-people').forEach((t) => t.addEventListener('click', (ev) => {
+  const tr = ev.target.closest('tr[data-key]');
+  if (tr) dash.setParams({person: tr.dataset.key});
+}));
+dash.onData(() => {
+  const p = dash.params();
+  if (suSearch && suSearch !== document.activeElement) suSearch.value = p.q ?? '';
+  document.querySelectorAll('.su-pick-hint').forEach((h) => { h.hidden = !!p.person; });
+});
+dash.draw('div-select', (sel) => {
+  const g = dash.data('divisions');
+  sel.replaceChildren(new Option('ทุกฝ่าย', ''), ...(g.status === 'ok' ? g.data : []).map((r) => new Option(`${r.div} · ${r.div_th}`, r.div)));
+  sel.value = dash.params().div ?? '';
+  sel.onchange = () => dash.setParams({div: sel.value || null, person: null});
+});
+dash.draw('rows-people', (tb) => {
+  const d = dash.data('people');
+  if (d.status !== 'ok') { tb.replaceChildren(); return; }
+  const p = dash.params(), q = (p.q || '').toLowerCase();
+  const rows = d.data.filter((r) => (!p.div || r.div === p.div) && (!q || [r.id, r.name, r.sec, r.position, r.div].join(' ').toLowerCase().includes(q)));
+  const cols = ['id', 'name', 'div', 'sec', 'position', 'grade', 'high', 'ja_hours', 'risk'];
+  tb.replaceChildren(...rows.map((r) => {
+    const tr = document.createElement('tr');
+    tr.dataset.key = r.id;
+    if (p.person === r.id) tr.className = 'sel';
+    cols.forEach((c) => {
+      const td = document.createElement('td');
+      const v = r[c] == null ? '' : String(r[c]);
+      if (['grade', 'high', 'ja_hours'].includes(c)) { td.className = 'n'; td.textContent = v === '' ? '' : suFmt(Number(v)); }
+      else if (c === 'risk') { const s = document.createElement('span'); s.className = 'su-pill' + (v.includes('คนเดียว') ? ' hot' : v.includes('เกิน') || v.includes('เดียวในฝ่าย') ? ' warn' : ''); s.textContent = v; td.appendChild(s); }
+      else td.textContent = v;
+      if (c === 'id') td.classList.add('key');
+      if (['div', 'position', 'ja_hours'].includes(c)) td.classList.add('su-hide-sm');
+      tr.appendChild(td);
+    });
+    return tr;
+  }));
+});
+dash.draw('person-head', (el) => {
+  const d = dash.data('people'), id = dash.params().person;
+  const r = d.status === 'ok' && id ? d.data.find((x) => x.id === id) : null;
+  if (!r) { el.textContent = '—'; return; }
+  const b = (t) => { const x = document.createElement('b'); x.textContent = t; return x; };
+  const parts = [b(r.name), ` · ${r.position} · ${r.div}/${r.sec} · Grade ${r.grade || 'ไม่มีข้อมูล'} (${r.grade_status}) · หัวหน้างาน ${r.supervisor}`, document.createElement('br'),
+    `ทักษะ ${r.skill_rows} รายการ: Priority สูง ${r.high} · ปานกลาง ${r.medium} · ต่ำ ${r.low}`, document.createElement('br'),
+    `ความเสี่ยง: ${r.risk}${r.solo_hours ? ` (งานที่ทำคนเดียว ~${suFmt(Number(r.solo_hours))} ชม./ปี)` : ''}`];
+  el.replaceChildren(...parts);
+});
+dash.draw('rows-person', (tb) => {
+  const id = dash.params().person;
+  if (!id) { tb.replaceChildren(); return; }
+  const d = dash.data('person_skills');
+  if (d.status !== 'ok') { tb.replaceChildren(); return; }
+  const cols = ['code', 'skill', 'category', 'target', 'priority', 'kr', 'action', 'due'];
+  tb.replaceChildren(...d.data.filter((r) => r.id === id).map((r) => {
+    const tr = document.createElement('tr');
+    tr.dataset.key = `${encodeURIComponent(r.id)},${encodeURIComponent(r.code)}`;
+    cols.forEach((c) => {
+      const td = document.createElement('td');
+      const v = r[c] == null ? '' : String(r[c]);
+      if (c === 'target') { td.className = 'n'; td.textContent = v; }
+      else if (c === 'priority') { const s = document.createElement('span'); s.className = 'su-pill' + (v === 'สูง' ? ' hot' : v === 'ปานกลาง' ? ' warn' : ''); s.textContent = v; td.appendChild(s); }
+      else td.textContent = v;
+      if (['code', 'category', 'kr', 'due'].includes(c)) td.classList.add('su-hide-sm');
+      tr.appendChild(td);
+    });
+    return tr;
+  }));
+});
+
+// ---- structure: new units & people
+dash.draw('rows-new_units', suTable('new_units', ['unit_code', 'unit_name', 'head', 'people', 'from_units', 'change', 'functions'], 'unit_code', ['people'], 'change'));
+dash.draw('grp-select', (sel) => {
+  const g = dash.data('org_groups');
+  sel.replaceChildren(new Option('ทุกฝ่ายที่เสนอ', ''), ...(g.status === 'ok' ? g.data : []).map((r) => new Option(`${r.group} · ${r.name}`, r.group)));
+  sel.value = dash.params().grp ?? '';
+  sel.onchange = () => dash.setParams({grp: sel.value || null});
+});
+document.querySelectorAll('.su-chg').forEach((c) => c.addEventListener('change', () => dash.setParams({chg: c.value || null})));
+dash.onData(() => { document.querySelectorAll('.su-chg').forEach((c) => { c.value = dash.params().chg ?? ''; }); });
+dash.draw('rows-new_people', (tb) => {
+  const d = dash.data('new_people');
+  if (d.status !== 'ok') { tb.replaceChildren(); return; }
+  const p = dash.params();
+  const rows = d.data.filter((r) => (!p.grp || r.new_group === p.grp) && (!p.chg || r.change === p.chg));
+  const cols = ['id', 'name', 'position', 'old_unit', 'new_unit_code', 'new_unit', 'change'];
+  tb.replaceChildren(...rows.map((r) => {
+    const tr = document.createElement('tr');
+    cols.forEach((c) => {
+      const td = document.createElement('td'); const v = r[c] == null ? '' : String(r[c]);
+      if (c === 'change') { const s = document.createElement('span'); s.className = 'su-pill' + (v === 'ย้าย' ? ' hot' : v === 'รวม' || v === 'ใหม่' ? ' warn' : ''); s.textContent = v; td.appendChild(s); }
+      else td.textContent = v;
+      if (c === 'id') td.classList.add('key');
+      if (['position', 'new_unit'].includes(c)) td.classList.add('su-hide-sm');
+      tr.appendChild(td);
+    });
+    return tr;
+  }));
+});
+
+// ---- OKR 2570
+dash.draw('okrdiv-select', (sel) => {
+  const g = dash.data('divisions');
+  sel.replaceChildren(new Option('ทุกฝ่าย', ''), ...(g.status === 'ok' ? g.data : []).map((r) => new Option(`${r.div} · ${r.div_th}`, r.div)));
+  sel.value = dash.params().okrdiv ?? '';
+  sel.onchange = () => dash.setParams({okrdiv: sel.value || null});
+});
+dash.draw('rows-okr2570', (tb) => {
+  const d = dash.data('okr2570');
+  if (d.status !== 'ok') { tb.replaceChildren(); return; }
+  const div = dash.params().okrdiv;
+  const cols = ['kr_id', 'objective', 'kr', 'baseline_2569', 'target_2570', 'owner_units', 'basis', 'center_link'];
+  let prevObj = null;
+  tb.replaceChildren(...d.data.filter((r) => !div || r.div === div).map((r) => {
+    const tr = document.createElement('tr');
+    cols.forEach((c) => {
+      const td = document.createElement('td'); const v = r[c] == null ? '' : String(r[c]);
+      if (c === 'basis') { const s = document.createElement('span'); s.className = 'su-pill' + (v.startsWith('สานต่อ') ? '' : ' warn'); s.textContent = v; td.appendChild(s); }
+      else if (c === 'objective') { td.textContent = v; if (r.objective_id === prevObj) td.style.color = 'var(--color-fg-muted)'; }
+      else td.textContent = v;
+      if (c === 'kr_id') td.classList.add('key');
+      if (['baseline_2569', 'owner_units', 'center_link'].includes(c)) td.classList.add('su-hide-sm');
+      tr.appendChild(td);
+    });
+    prevObj = r.objective_id;
+    return tr;
+  }));
+});
+dash.draw('okrmix', (el) => {
+  const d = dash.data('okr2570');
+  if (d.status !== 'ok') { el.textContent = '—'; return; }
+  const cats = [['สานต่อ', 'สานต่อ OKR 2569', 'var(--cds-chart-muted)'], ['ใหม่: ลดงานซ้ำซ้อน', 'ใหม่: ลดงานซ้ำซ้อน', dash.colors[0]], ['ใหม่: AI และทักษะ', 'ใหม่: AI และทักษะ', dash.colors[1]], ['ใหม่: ความต่อเนื่องของงาน', 'ใหม่: ความต่อเนื่องของงาน', dash.colors[2]]];
+  const catOf = (b) => b.startsWith('สานต่อ') ? 'สานต่อ' : b;
+  const divs = []; d.data.forEach((r) => { if (!divs.includes(r.div)) divs.push(r.div); });
+  const rows = divs.map((v) => { const o = {div: v}; cats.forEach(([k]) => { o[k] = d.data.filter((r) => r.div === v && catOf(r.basis) === k).length; }); return o; });
+  const W = Math.max(280, el.clientWidth || 500), left = 52, right = 32, rowH = 30, top = 6;
+  const H = top + rows.length * rowH + 24;
+  const tot = (r) => cats.reduce((s, [k]) => s + r[k], 0);
+  const x = d3.scaleLinear([0, d3.max(rows, tot) || 1], [left, W - right]).nice();
+  const y = d3.scaleBand(rows.map((r) => r.div), [top, top + rows.length * rowH]).padding(0.25);
+  const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  svg.append('g').selectAll('line').data(x.ticks(5)).join('line').attr('x1', (v) => x(v)).attr('x2', (v) => x(v)).attr('y1', top).attr('y2', H - 22).attr('stroke', 'var(--cds-chart-grid)');
+  svg.append('g').selectAll('text').data(x.ticks(5)).join('text').attr('x', (v) => x(v)).attr('y', H - 6).attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((v) => v);
+  svg.append('g').selectAll('text').data(rows).join('text').attr('x', 0).attr('y', (r) => y(r.div) + y.bandwidth() / 2 + 4).attr('font-size', 12).attr('fill', 'var(--color-fg)').text((r) => r.div);
+  const segs = [];
+  rows.forEach((r) => { let acc = 0; cats.forEach(([k, name, c]) => { if (r[k]) segs.push({div: r.div, name, c, v: r[k], x0: acc}); acc += r[k]; }); });
+  let tip;
+  svg.append('g').selectAll('rect').data(segs).join('rect')
+    .attr('x', (s) => x(s.x0)).attr('y', (s) => y(s.div)).attr('height', y.bandwidth())
+    .attr('width', (s) => Math.max(0, x(s.x0 + s.v) - x(s.x0) - 1)).attr('fill', (s) => s.c)
+    .on('pointermove', (ev, s) => tip && tip.show(ev, s.div, `${s.name}: ${s.v} KR`)).on('pointerleave', () => tip && tip.hide());
+  svg.append('g').selectAll('text').data(rows).join('text').attr('x', (r) => x(tot(r)) + 4).attr('y', (r) => y(r.div) + y.bandwidth() / 2 + 4).attr('font-size', 10.5).attr('fill', 'var(--color-fg-muted)').text((r) => tot(r));
+  el.replaceChildren(svg.node()); tip = suTip(el);
+});
+
+dash.draw('prio', (el) => {
+  const d = dash.data('priority_by_div');
+  if (d.status !== 'ok') { el.textContent = '—'; return; }
+  const rows = d.data.map((r) => ({div: r.div, high: Number(r.high), medium: Number(r.medium), low: Number(r.low)}));
+  const W = Math.max(280, el.clientWidth || 500), left = 52, right = 44, rowH = 30, top = 6;
+  const H = top + rows.length * rowH + 24;
+  const x = d3.scaleLinear([0, d3.max(rows, (r) => r.high + r.medium + r.low) || 1], [left, W - right]).nice();
+  const y = d3.scaleBand(rows.map((r) => r.div), [top, top + rows.length * rowH]).padding(0.25);
+  const cols = [['high', 'สูง', 'var(--cds-chart-status-critical)'], ['medium', 'ปานกลาง', dash.colors[0]], ['low', 'ต่ำ', 'var(--cds-chart-muted)']];
+  const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  svg.append('g').selectAll('line').data(x.ticks(5)).join('line').attr('x1', (v) => x(v)).attr('x2', (v) => x(v)).attr('y1', top).attr('y2', H - 22).attr('stroke', 'var(--cds-chart-grid)');
+  svg.append('g').selectAll('text').data(x.ticks(5)).join('text').attr('x', (v) => x(v)).attr('y', H - 6).attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((v) => suFmt(v));
+  svg.append('g').selectAll('text').data(rows).join('text').attr('x', 0).attr('y', (r) => y(r.div) + y.bandwidth() / 2 + 4).attr('font-size', 12).attr('fill', 'var(--color-fg)').text((r) => r.div);
+  let tip;
+  const segs = [];
+  rows.forEach((r) => { let acc = 0; cols.forEach(([k, name, c]) => { segs.push({div: r.div, k, name, c, v: r[k], x0: acc}); acc += r[k]; }); });
+  svg.append('g').selectAll('rect').data(segs).join('rect')
+    .attr('x', (s) => x(s.x0)).attr('y', (s) => y(s.div)).attr('height', y.bandwidth())
+    .attr('width', (s) => Math.max(0, x(s.x0 + s.v) - x(s.x0) - 1)).attr('fill', (s) => s.c)
+    .on('pointermove', (ev, s) => tip && tip.show(ev, s.div, `Priority ${s.name}: ${suFmt(s.v)} รายการ`)).on('pointerleave', () => tip && tip.hide());
+  svg.append('g').selectAll('text').data(rows).join('text')
+    .attr('x', (r) => x(r.high + r.medium + r.low) + 4).attr('y', (r) => y(r.div) + y.bandwidth() / 2 + 4)
+    .attr('font-size', 10.5).attr('fill', 'var(--color-fg-muted)').text((r) => suFmt(r.high + r.medium + r.low));
+  el.replaceChildren(svg.node()); tip = suTip(el);
+});
+
+dash.draw('orgflow', (el) => {
+  const m = dash.data('org_moves'), g = dash.data('org_groups');
+  if (m.status !== 'ok' || g.status !== 'ok') { el.textContent = '—'; return; }
+  const moves = m.data.map((r) => ({...r, people: Number(r.people)}));
+  const W = Math.max(320, el.clientWidth || 700), narrow = W < 560;
+  const lw = narrow ? 64 : 92, rw = narrow ? 118 : 252, gap = 12, nodeW = 12, top = 8;
+  const total = d3.sum(moves, (r) => r.people);
+  const fromIds = []; moves.forEach((r) => { if (!fromIds.includes(r.from_div)) fromIds.push(r.from_div); });
+  const toIds = g.data.map((r) => r.group);
+  const avail = 400 - gap * (Math.max(fromIds.length, toIds.length) - 1);
+  const k = avail / total;
+  const H = top + 400 + 8;
+  const place = (ids, key) => { let y = top; const out = {}; ids.forEach((id) => { const v = d3.sum(moves.filter((r) => r[key] === id), (r) => r.people); out[id] = {y, h: v * k, v, off: 0}; y += v * k + gap; }); return out; };
+  const L = place(fromIds, 'from_div'), Rn = place(toIds, 'to_group');
+  const xL = lw, xR = W - rw - nodeW;
+  const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  const links = moves.map((r) => {
+    const a = L[r.from_div], b = Rn[r.to_group], h = r.people * k;
+    const y0 = a.y + a.off; a.off += h; const y1 = b.y + b.off; b.off += h;
+    return {...r, h, y0, y1};
+  });
+  const mx = (xL + nodeW + xR) / 2;
+  let tip;
+  svg.append('g').selectAll('path').data(links).join('path')
+    .attr('d', (l) => `M${xL + nodeW},${l.y0} C${mx},${l.y0} ${mx},${l.y1} ${xR},${l.y1} L${xR},${l.y1 + l.h} C${mx},${l.y1 + l.h} ${mx},${l.y0 + l.h} ${xL + nodeW},${l.y0 + l.h} Z`)
+    .attr('fill', (l) => l.change === 'ย้าย' ? dash.colors[0] : 'var(--cds-chart-muted)')
+    .attr('fill-opacity', (l) => l.change === 'ย้าย' ? 0.75 : 0.35)
+    .on('pointermove', (ev, l) => tip && tip.show(ev, `${l.from_div} → ${l.to_group} (${l.change})`, `${l.units} · ${l.people} คน`)).on('pointerleave', () => tip && tip.hide());
+  const nodes = (obj, x, side) => Object.entries(obj).map(([id, n]) => ({id, ...n, x, side}));
+  const all = nodes(L, xL, 'L').concat(nodes(Rn, xR, 'R'));
+  svg.append('g').selectAll('rect').data(all).join('rect').attr('x', (n) => n.x).attr('y', (n) => n.y).attr('width', nodeW).attr('height', (n) => Math.max(1, n.h)).attr('rx', 2).attr('fill', 'var(--color-fg)');
+  const gname = (id) => { const r = g.data.find((x) => x.group === id); return r ? r.name : id; };
+  svg.append('g').selectAll('text').data(all).join('text')
+    .attr('x', (n) => n.side === 'L' ? n.x - 6 : n.x + nodeW + 6)
+    .attr('y', (n) => n.y + n.h / 2 + 4)
+    .attr('text-anchor', (n) => n.side === 'L' ? 'end' : 'start')
+    .attr('font-size', narrow ? 10.5 : 12).attr('fill', 'var(--color-fg)')
+    .text((n) => n.side === 'L' ? `${n.id} ${n.v}` : (narrow ? `${n.id} · ${n.v}` : `${n.id} ${gname(n.id)} · ${n.v}`));
+  el.replaceChildren(svg.node()); tip = suTip(el);
+});
+
+dash.draw('riskbars', (el) => {
+  const d = dash.data('divisions');
+  if (d.status !== 'ok') { el.textContent = '—'; return; }
+  const rows = d.data.map((r) => ({div: r.div, kp: Number(r.key_person), ov: Number(r.over_2000h)}));
+  const W = Math.max(280, el.clientWidth || 400), left = 52, right = 28, rowH = 32, top = 8;
+  const H = top + rows.length * rowH + 24;
+  const x = d3.scaleLinear([0, d3.max(rows, (r) => Math.max(r.kp, r.ov)) || 1], [left, W - right]).nice();
+  const y = d3.scaleBand(rows.map((r) => r.div), [top, top + rows.length * rowH]).padding(0.2);
+  const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  svg.append('g').selectAll('line').data(x.ticks(5)).join('line')
+    .attr('x1', (v) => x(v)).attr('x2', (v) => x(v)).attr('y1', top).attr('y2', H - 22).attr('stroke', 'var(--cds-chart-grid)');
+  svg.append('g').selectAll('text').data(x.ticks(5)).join('text')
+    .attr('x', (v) => x(v)).attr('y', H - 6).attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((v) => v);
+  svg.append('g').selectAll('text').data(rows).join('text')
+    .attr('x', 0).attr('y', (r) => y(r.div) + y.bandwidth() / 2 + 4).attr('font-size', 12).attr('fill', 'var(--color-fg)').text((r) => r.div);
+  let tip;
+  const bh = y.bandwidth() / 2;
+  const series = [['kp', 0, 'ทำงานคนเดียว ≥ 500 ชม./ปี'], ['ov', 1, 'ภาระงาน > 2,000 ชม./ปี']];
+  series.forEach(([k, ci, name], si) => {
+    const g = svg.append('g');
+    g.selectAll('rect').data(rows).join('rect')
+      .attr('x', left).attr('y', (r) => y(r.div) + si * bh).attr('height', bh - 2)
+      .attr('width', (r) => Math.max(0, x(r[k]) - left)).attr('rx', 2).attr('fill', dash.colors[ci])
+      .on('pointermove', (ev, r) => tip && tip.show(ev, r.div, `${name}: ${r[k]} คน`)).on('pointerleave', () => tip && tip.hide());
+    g.selectAll('text').data(rows).join('text')
+      .attr('x', (r) => x(r[k]) + 4).attr('y', (r) => y(r.div) + si * bh + bh / 2 + 3)
+      .attr('font-size', 10.5).attr('fill', 'var(--color-fg-muted)').text((r) => r[k]);
+  });
+  el.replaceChildren(svg.node()); tip = suTip(el);
+});
+
+dash.draw('gantt', (el) => {
+  const d = dash.data('ai_roadmap');
+  if (d.status !== 'ok') { el.textContent = '—'; return; }
+  const rows = d.data;
+  const W = Math.max(320, el.clientWidth || 700), narrow = W < 560;
+  const left = narrow ? 104 : 150, right = 8, top = 26, laneH = 22, gapH = 20;
+  const lanes = []; let yy = top, prev = null;
+  rows.forEach((r) => { if (r.div !== prev) { lanes.push({head: r.div, y: yy}); yy += gapH; prev = r.div; } lanes.push({row: r, y: yy}); yy += laneH; });
+  const H = yy + 8;
+  const t0 = new Date('2026-11-01'), t1 = new Date('2027-10-01');
+  const x = d3.scaleUtc([t0, t1], [left, W - right]);
+  const thm = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  const months = d3.utcMonth.range(t0, t1);
+  const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  svg.append('g').selectAll('line').data(months).join('line')
+    .attr('x1', (m) => x(m)).attr('x2', (m) => x(m)).attr('y1', top - 6).attr('y2', H - 4).attr('stroke', 'var(--cds-chart-grid)');
+  svg.append('g').selectAll('text').data(months.filter((m, i) => !narrow || i % 2 === 0)).join('text')
+    .attr('x', (m) => (x(m) + x(d3.utcMonth.offset(m, 1))) / 2).attr('y', 14).attr('text-anchor', 'middle').attr('font-size', 10.5).attr('fill', 'var(--color-fg-muted)')
+    .text((m) => `${thm[m.getUTCMonth()]} ${String(m.getUTCFullYear() + 543).slice(2)}`);
+  const heads = lanes.filter((l) => l.head);
+  svg.append('g').selectAll('text').data(heads).join('text')
+    .attr('x', 0).attr('y', (l) => l.y + 14).attr('font-size', 12).attr('font-weight', 600).attr('fill', 'var(--color-fg)').text((l) => l.head);
+  const items = lanes.filter((l) => l.row);
+  svg.append('g').selectAll('text').data(items).join('text')
+    .attr('x', 10).attr('y', (l) => l.y + 14).attr('font-size', 11.5).attr('fill', 'var(--color-fg)').text((l) => l.row.unit);
+  const stages = [['l1', 'L1 Core', 'l1'], ['l2', 'L2 Track', 'l2'], ['cap', 'Capstone', 'capstone_period'], ['l3', 'L3 Builder', 'l3']];
+  const bars = [];
+  items.forEach((l) => stages.forEach(([k, name, lab], i) => {
+    const s = l.row[`${k}_start`], e = l.row[`${k}_end`];
+    if (s && e) bars.push({y: l.y, s: new Date(s), e: new Date(e), c: dash.colors[i], name, unit: l.row.unit, when: l.row[lab]});
+  }));
+  let tip;
+  svg.append('g').selectAll('rect').data(bars).join('rect')
+    .attr('x', (b) => x(b.s) + 1).attr('y', (b) => b.y + 3).attr('height', laneH - 7)
+    .attr('width', (b) => Math.max(2, x(b.e) - x(b.s) - 2)).attr('rx', 3).attr('fill', (b) => b.c)
+    .on('pointermove', (ev, b) => tip && tip.show(ev, b.unit, `${b.name}: ${b.when}`)).on('pointerleave', () => tip && tip.hide());
+  el.replaceChildren(svg.node()); tip = suTip(el);
+});
+</script>
+
+<p style="margin-top:32px;font-size:12px;color:var(--color-fg-muted)">ข้อมูล ณ 7 พ.ย. 2569 · สร้างจาก StaffList, Role Profile, Job Analysis และ OKR 2569 ของ ศว. · เอกสารภายใน มีข้อมูลส่วนบุคคล ใช้เพื่อการพัฒนาบุคลากรเท่านั้น</p>
+</div>
+</body>
+</html>
