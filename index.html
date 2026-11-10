@@ -121,6 +121,11 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
 .su-table td.xl { white-space: nowrap; }
 .su-table a, .su-links a, .su-person-head a { color: var(--color-fg); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--color-fg-muted); }
 .su-table a:hover, .su-links a:hover { text-decoration-color: var(--color-fg); }
+.su-gcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--cds-gap-md); }
+.su-gcard { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: grid; gap: 6px; align-content: start; font-size: var(--cds-font-size-caption); line-height: 1.5; color: var(--color-fg-muted); }
+.su-gcard h4 { margin: 0; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); color: var(--color-fg); display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.su-gcard .p { color: var(--color-fg); font-size: var(--cds-font-size-body); }
+.su-gcard b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
 .su-list { margin: 0; padding-left: 1.2em; display: grid; gap: var(--cds-gap-sm); line-height: 1.55; }
 .su-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
 .su-legend span { display: inline-flex; align-items: center; gap: 6px; }
@@ -168,7 +173,9 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
     <button class="su-tab" role="tab" data-tab="ai-roadmap" aria-selected="false">AI Roadmap</button>
     <button class="su-tab" role="tab" data-tab="duplicates" aria-selected="false">งานซ้ำซ้อน</button>
     <button class="su-tab" role="tab" data-tab="structure" aria-selected="false">โครงสร้างองค์กร</button>
-    <button class="su-tab" role="tab" data-tab="mobilize" aria-selected="false">Mobilize</button>
+    <button class="su-tab" role="tab" data-tab="mobilize" aria-selected="false">Mobilize (โครงสร้างใหม่)</button>
+    <button class="su-tab" role="tab" data-tab="mobilize-keep" aria-selected="false">Mobilize (ย้ายงาน · โครงสร้างเดิม)</button>
+    <button class="su-tab" role="tab" data-tab="mobilize-people" aria-selected="false">Mobilize (ย้ายคน · โครงสร้างเดิม)</button>
     <button class="su-tab" role="tab" data-tab="okr" aria-selected="false">OKR 2570</button>
     <button class="su-tab" role="tab" data-tab="people" aria-selected="false">รายบุคคล</button>
     <button class="su-tab" role="tab" data-tab="gaps" aria-selected="false">ข้อมูลที่ขาด</button>
@@ -196,7 +203,7 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
         <div class="su-card" id="division-table">
           <h3>สรุปรายฝ่าย</h3>
           <p class="su-note">Priority สูง = คะแนน OKR Impact + ความเสี่ยงงาน + การสืบทอดตำแหน่ง ≥ 7 จาก 9</p>
-          <p class="su-links">📥 <a class="su-xl" data-file="Executive_Summary_SU_2570.xlsx" target="_blank" rel="noopener">Executive Summary (Excel)</a><span class="su-gh"> · <a class="su-repo" target="_blank" rel="noopener">เปิด repo MTECOrg</a> · ไฟล์อยู่ใน GitHub repo แบบ Private ต้องล็อกอินบัญชีที่มีสิทธิ์</span></p>
+          <p class="su-links">📥 <a href="excel/Executive_Summary_SU_2570.xlsx" target="_blank" rel="noopener">Executive Summary (Excel)</a><span class="su-gh"> · <a href="https://github.com/surasitman/MTECOrg" target="_blank" rel="noopener">เปิด repo MTECOrg</a> · ไฟล์อยู่ใน GitHub repo แบบ Private ต้องล็อกอินบัญชีที่มีสิทธิ์</span></p>
           <div class="su-tablewrap">
             <table class="su-table" data-source="divisions" data-row-key="div">
               <thead><tr>
@@ -318,6 +325,11 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
     <div class="su-sec">
       <h2>ข้อเสนอปรับโครงสร้างเพื่อลดความซ้ำซ้อน</h2>
       <p>จัดกลุ่มตาม value chain ของฝ่ายสนับสนุน (Strategy → Delivery → Impact บนฐาน Efficiency) จาก <b data-draw="num" data-source="org_tot" data-field="divisions_now">—</b> ฝ่ายเหลือ <b data-draw="num" data-source="org_tot" data-field="groups">—</b> ฝ่าย ย้ายสังกัด <b data-draw="num" data-source="org_tot" data-field="moved">—</b> คน และงานซ้ำซ้อน <b data-draw="num" data-source="org_tot" data-field="clusters">—</b> กลุ่มมีเจ้าของที่เดียว — ทำเป็นทีมเสมือนก่อน แล้วปรับผังทางการพร้อมปีงบ 2571</p>
+      <div class="su-card" id="grp-explain">
+        <h3>รหัส G1–G6 คืออะไร</h3>
+        <p class="su-note">G1–G6 คือ 6 ฝ่ายในโครงสร้างที่เสนอ (ยังไม่ใช่ชื่อทางการ) เรียงตาม value chain ของฝ่ายสนับสนุน · รหัสหน่วยงาน เช่น G2-KAM = งานหนึ่งภายในฝ่าย G2</p>
+        <div class="su-gcards" data-draw="grp-cards" data-source="org_groups">—</div>
+      </div>
       <div class="su-card" id="org-flow">
         <h3>จากโครงสร้างปัจจุบันสู่โครงสร้างที่เสนอ</h3>
         <p class="su-note">ความหนาของเส้น = จำนวนคน · เส้นสีเข้ม = หน่วยงานที่ย้ายสังกัด</p>
@@ -406,8 +418,15 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
 
   <section class="su-page" id="mobilize" data-page role="tabpanel" hidden>
     <div class="su-sec">
-      <h2 id="mob-title">Mobilize บุคลากรตามโครงสร้างใหม่</h2>
+      <h2 id="mob-title">Mobilize บุคลากรตามโครงสร้างใหม่ (ปรับผังองค์กร)</h2>
       <p>มีผู้ได้รับผลกระทบ <b data-draw="num" data-source="mob_tot" data-field="affected">—</b> คน: ย้ายสังกัดข้ามฝ่าย <b data-draw="num" data-source="mob_tot" data-field="cross">—</b> คน และเปลี่ยนภายในฝ่ายเดิม <b data-draw="num" data-source="mob_tot" data-field="in_div">—</b> คน ทุกหน่วยงานย้ายไปทั้งทีมพร้อมงาน (ยกเว้นตำแหน่ง ผอ.ฝ่ายที่รอผู้บริหารตัดสินใจ) จึงใช้แนวทาง <b>"ทีมเสมือนก่อน ย้ายทางการทีหลัง"</b> คือเริ่มทำงานในทีมใหม่ระหว่าง มี.ค.–เม.ย. 2570 โดยยังสังกัดเดิม แล้วออกคำสั่งย้ายพร้อมกันเมื่อขึ้นปีงบ 2571</p>
+    </div>
+    <div class="su-sec">
+      <div class="su-card" id="grp-explain-mob">
+        <h3>รหัส G1–G6 คืออะไร</h3>
+        <p class="su-note">G1–G6 คือ 6 ฝ่ายในโครงสร้างที่เสนอ (ยังไม่ใช่ชื่อทางการ) เรียงตาม value chain ของฝ่ายสนับสนุน · รหัสหน่วยงาน เช่น G2-KAM = งานหนึ่งภายในฝ่าย G2</p>
+        <div class="su-gcards" data-draw="grp-cards" data-source="org_groups">—</div>
+      </div>
     </div>
     <div class="su-tiles" id="mob-tiles">
       <div class="su-tile"><div class="su-tile-label">ผู้ได้รับผลกระทบ</div><div class="su-tile-num" data-draw="num" data-source="mob_tot" data-field="affected">—</div><div class="su-tile-note">คน จาก 115 คน</div></div>
@@ -494,6 +513,216 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
       </div>
     </div>
     <p class="su-note">แผนนี้เป็นข้อเสนอจากข้อมูล StaffList, JA และโครงสร้างที่เสนอ ยังต้องตรวจกับระเบียบการโอนย้ายและการตั้ง/ยุบหน่วยงานของ สวทช. และคุยกับผู้ได้รับผลกระทบทุกคนก่อนประกาศ</p>
+  </section>
+
+  <section class="su-page" id="mobilize-keep" data-page role="tabpanel" hidden>
+    <div class="su-sec">
+      <h2 id="mk-title">Mobilize แบบย้ายงาน โดยคงโครงสร้างองค์กรเดิม</h2>
+      <p>ไม่ย้ายสังกัดและไม่เปลี่ยนผัง แต่ย้าย <b>งาน</b> ไปหาคนที่มีเวลา และย้าย <b>ความรู้</b> ไปหาผู้สำรอง: มีคนภาระเกิน 2,000 ชม./ปี <b data-draw="num" data-source="mk_tot" data-field="over_people">—</b> คน รวมชั่วโมงเกิน <b data-draw="num" data-source="mk_tot" data-field="excess">—</b> ชม./ปี — โอนงานให้คนที่ยังมีเวลาได้ <b data-draw="num" data-source="mk_tot" data-field="moved">—</b> ชม. ผู้บริหารต้องกระจายงานให้ทีม <b data-draw="num" data-source="mk_tot" data-field="delegate">—</b> ชม. และที่เหลือ <b data-draw="num" data-source="mk_tot" data-field="ai">—</b> ชม. ต้องลดด้วย AI หรือปรับกระบวนการ ซึ่งกระจุกที่งานเบิกจ่ายและจัดซื้อของ RPS</p>
+    </div>
+    <div class="su-tiles" id="mk-tiles">
+      <div class="su-tile"><div class="su-tile-label">คนภาระเกิน 2,000 ชม./ปี</div><div class="su-tile-num" data-draw="num" data-source="mk_tot" data-field="over_people">—</div><div class="su-tile-note">คน (ตาม JA)</div></div>
+      <div class="su-tile"><div class="su-tile-label">โอนงานได้ทันที</div><div class="su-tile-num" data-draw="num" data-source="mk_tot" data-field="moved">—</div><div class="su-tile-note">ชม./ปี ให้คนที่ภาระ ≤ 1,800</div></div>
+      <div class="su-tile"><div class="su-tile-label">ยืมตัวข้ามฝ่าย</div><div class="su-tile-num" data-draw="num" data-source="mk_tot" data-field="cross">—</div><div class="su-tile-note">ชม./ปี ที่อยู่ในยอดโอนงาน</div></div>
+      <div class="su-tile"><div class="su-tile-label">ต้องลดด้วย AI/กระบวนการ</div><div class="su-tile-num" data-draw="num" data-source="mk_tot" data-field="ai">—</div><div class="su-tile-note">ชม./ปี ที่ไม่มีคนรับได้</div></div>
+      <div class="su-tile"><div class="su-tile-label">คู่ผู้สำรองงาน</div><div class="su-tile-num" data-draw="num" data-source="mk_tot" data-field="buddies">—</div><div class="su-tile-note">คู่ สำหรับงานที่อยู่กับคนเดียว</div></div>
+      <div class="su-tile"><div class="su-tile-label">คณะทำงานข้ามฝ่าย</div><div class="su-tile-num" data-draw="num" data-source="mk_tot" data-field="teams">—</div><div class="su-tile-note">ชุด ตามกลุ่มงานซ้ำซ้อน</div></div>
+    </div>
+    <div class="su-grid">
+      <div class="su-card" id="mk-summary">
+        <h3>สรุปแนวทาง</h3>
+        <ul class="su-list">
+          <li><b>ย้ายงาน ไม่ย้ายคน</b> — ทุกคนสังกัดเดิม ผู้ประเมินผลงานคนเดิม ใช้คำสั่งมอบหมายงานตามอำนาจของผู้จัดการงาน ผอ.ฝ่าย หรือ ผอ.ศว.</li>
+          <li><b>ภายในก่อน ข้ามฝ่ายทีหลัง</b> — จับคู่คนที่ภาระเกินกับคนในงานเดียวกันที่ Job Code เดียวกันก่อน แล้วจึงข้ามงานในฝ่าย และยืมตัวข้ามฝ่ายเป็นลำดับสุดท้าย</li>
+          <li><b>งานที่ไม่มีใครรับได้ต้องลดที่ต้นเหตุ</b> — ส่วนใหญ่เป็นงานเบิกจ่าย/จัดซื้อของ RPS ซึ่งเป็น Pilot หลักสูตร AI อยู่แล้ว จึงใช้ผล Pilot ลดชั่วโมงก่อนคิดเรื่องเพิ่มคน</li>
+          <li><b>ผู้สำรองทุกงานที่อยู่กับคนเดียว</b> — จับคู่ Buddy ในงานเดียวกัน ใช้เวลาฝึก 40–120 ชม. ต่อคู่ ส่วนใหญ่อยู่ที่ห้องปฏิบัติการ TSMA</li>
+          <li><b>งานซ้ำซ้อนใช้คณะทำงาน</b> — แต่งตั้งคณะทำงานข้ามฝ่ายพร้อมหน่วยงานเจ้าภาพและ RACI แทนการรวมหน่วยงาน</li>
+        </ul>
+      </div>
+      <div class="su-card" id="mk-compare">
+        <h3>เทียบกับการปรับโครงสร้าง</h3>
+        <div class="su-tablewrap">
+          <table class="su-table">
+            <thead><tr><th>ประเด็น</th><th>คงโครงสร้างเดิม</th><th>ปรับโครงสร้างใหม่</th></tr></thead>
+            <tbody>
+              <tr><td class="key">ความเร็ว</td><td>เริ่มได้ทันทีด้วยคำสั่งมอบหมายงาน</td><td>คำสั่งย้ายมีผลปีงบ 2571</td></tr>
+              <tr><td class="key">ผลกระทบต่อคน</td><td>ไม่เปลี่ยนสังกัด หัวหน้า หรือผู้ประเมิน</td><td><b data-draw="num" data-source="mob_tot" data-field="affected">—</b> คนเปลี่ยนหน่วยงาน</td></tr>
+              <tr><td class="key">แก้ภาระงานเกิน</td><td>ได้บางส่วน ที่เหลือต้องพึ่ง AI/กระบวนการ</td><td>ได้เท่ากัน ภาระงานไม่ได้ลดเพราะย้ายสังกัด</td></tr>
+              <tr><td class="key">แก้งานซ้ำซ้อน</td><td>ได้ผ่านคณะทำงาน แต่ยังมีหลายเจ้าของ</td><td>ได้ถาวร เพราะมีเจ้าของเดียว</td></tr>
+              <tr><td class="key">ความเสี่ยง</td><td>คณะทำงานอ่อนแรงเมื่อไม่มีผู้รับผิดชอบชัด</td><td>แรงต้านและช่วงเปลี่ยนผ่าน</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="su-note">ข้อเสนอ: เริ่มแนวทางคงโครงสร้างเดิมทันทีในปีงบ 2570 แล้วใช้ผลที่ได้เป็นหลักฐานตัดสินการปรับโครงสร้างในปีงบ 2571</p>
+      </div>
+    </div>
+    <div class="su-card" id="mk-chart">
+      <h3>ชั่วโมงงานที่เกินเทียบกับเวลาที่ยังรับงานได้ รายฝ่าย</h3>
+      <p class="su-note">เกิน = ชั่วโมงที่เกิน 2,000 ชม./ปี · รับได้ = เวลาที่ยังว่างจนถึง 1,800 ชม./ปี ของคนที่ไม่ใช่ผู้บริหาร · รับได้ไม่ได้แปลว่าทักษะตรง จึงจับคู่จาก Job Code</p>
+      <div class="su-legend" data-draw="mk-legend" data-source="mob2_div"></div>
+      <div class="su-chart" data-draw="mkbars" data-source="mob2_div">—</div>
+    </div>
+    <div class="su-card" id="mk-tools">
+      <h3>เครื่องมือ Mobilize ที่ไม่ต้องเปลี่ยนผัง</h3>
+      <div class="su-tablewrap">
+        <table class="su-table" data-source="mob2_tools" data-row-key="no">
+          <thead><tr>
+            <th data-field="no">ข้อ</th>
+            <th data-field="tool">เครื่องมือ</th>
+            <th data-field="when">ใช้เมื่อ</th>
+            <th data-field="authority">ผู้มีอำนาจสั่ง</th>
+            <th data-field="duration" class="su-hide-sm">ระยะเวลา</th>
+            <th data-field="note" class="su-hide-sm">ข้อกำหนด</th>
+          </tr></thead>
+          <tbody data-draw="rows-mob2_tools"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="su-card" id="mk-transfers">
+      <h3>แผนโอนงานรายบุคคล</h3>
+      <p class="su-note">จับคู่คนที่ภาระเกินกับคนที่ Job Code เดียวกันและภาระ ≤ 1,800 ชม./ปี · ชั่วโมงเป็นค่าประมาณจาก JA ต้องตกลงงานที่โอนจริงกับทั้งสองฝั่ง</p>
+      <div class="su-tablewrap su-scroll">
+        <table class="su-table" data-source="mob2_transfers" data-row-key="from_id,to_id">
+          <thead><tr>
+            <th data-field="from_name">ผู้ที่ภาระเกิน</th>
+            <th data-field="from_unit">ฝ่าย/งาน</th>
+            <th data-field="from_hours" class="n su-hide-sm">ชม./ปี</th>
+            <th data-field="to_name">ผู้รับงาน</th>
+            <th data-field="to_unit" class="su-hide-sm">ฝ่าย/งาน</th>
+            <th data-field="hours" class="n">ชม. ที่โอน</th>
+            <th data-field="mode">วิธี</th>
+            <th data-field="authority" class="su-hide-sm">ผู้สั่งการ</th>
+          </tr></thead>
+          <tbody data-draw="rows-mob2_transfers"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="su-card" id="mk-buddies">
+      <h3>คู่ผู้สำรองงาน (Buddy) สำหรับงานที่อยู่กับคนเดียว</h3>
+      <div class="su-tablewrap su-scroll">
+        <table class="su-table" data-source="mob2_buddies" data-row-key="id">
+          <thead><tr>
+            <th data-field="name">เจ้าของงาน</th>
+            <th data-field="unit">ฝ่าย/งาน</th>
+            <th data-field="solo_hours" class="n su-hide-sm">ทำคนเดียว ชม./ปี</th>
+            <th data-field="buddy_name">ผู้สำรอง</th>
+            <th data-field="fit" class="su-hide-sm">ความใกล้เคียง</th>
+            <th data-field="train_hours" class="n">ชม. ฝึก</th>
+            <th data-field="output" class="su-hide-sm">ผลลัพธ์</th>
+          </tr></thead>
+          <tbody data-draw="rows-mob2_buddies"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="su-card" id="mk-teams">
+      <h3>คณะทำงานข้ามฝ่ายตามกลุ่มงานซ้ำซ้อน</h3>
+      <div class="su-tablewrap">
+        <table class="su-table" data-source="duplicate_work" data-row-key="work_group">
+          <thead><tr>
+            <th data-field="work_group">กลุ่มงาน</th>
+            <th data-field="units">หน่วยงานที่ร่วม</th>
+            <th data-field="approach" class="su-hide-sm">สิ่งที่คณะทำงานทำ</th>
+            <th data-field="priority">ลำดับ</th>
+          </tr></thead>
+          <tbody data-draw="rows-mk_teams"></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="su-note">ชั่วโมงงานมาจาก Job Analysis ซึ่งพบข้อมูล <b data-draw="num" data-source="mk_tot" data-field="ja_people">—</b> จาก <b data-draw="num" data-source="mk_tot" data-field="staff">—</b> คน คนที่ไม่พบใน JA จึงไม่อยู่ในการจับคู่ · ต้องตรวจกับระเบียบการมอบหมายงานและการยืมตัวของ สวทช.</p>
+  </section>
+
+  <section class="su-page" id="mobilize-people" data-page role="tabpanel" hidden>
+    <div class="su-sec">
+      <h2 id="mp-title">Mobilize แบบให้บุคลากรโยกย้ายงานได้ โดยคงโครงสร้างองค์กรเดิม</h2>
+      <p>ผังองค์กรและหน่วยงานเหมือนเดิมทุกอย่าง แต่เปิดให้บุคลากร <b>ย้ายตัวไปทำงานในหน่วยงานที่ขาดคน</b> ได้ (Internal mobility) ทั้งโดยสมัครเองและได้รับเชิญ ตอนนี้มี <b data-draw="num" data-source="mp_tot" data-field="units">—</b> หน่วยงานที่ขาดคน รวม <b data-draw="num" data-source="mp_tot" data-field="fte">—</b> อัตรา จากข้อมูล JA จับคู่ผู้ย้ายที่ทีมเดิมรับงานแทนได้ <b data-draw="num" data-source="mp_tot" data-field="moves">—</b> คน ลดชั่วโมงเกินได้ <b data-draw="num" data-source="mp_tot" data-field="relief">—</b> ชม./ปี ที่เหลืออีก <b data-draw="num" data-source="mp_tot" data-field="open">—</b> อัตรา เปิดรับสมัครย้ายภายในก่อนขออัตราใหม่</p>
+    </div>
+    <div class="su-tiles" id="mp-tiles">
+      <div class="su-tile"><div class="su-tile-label">หน่วยงานที่ขาดคน</div><div class="su-tile-num" data-draw="num" data-source="mp_tot" data-field="units">—</div><div class="su-tile-note">ชั่วโมงเกินรวม ≥ 300 ชม./ปี</div></div>
+      <div class="su-tile"><div class="su-tile-label">อัตราที่ต้องการ</div><div class="su-tile-num" data-draw="num" data-source="mp_tot" data-field="fte">—</div><div class="su-tile-note">อัตรา (1 อัตรา = 1,800 ชม./ปี)</div></div>
+      <div class="su-tile"><div class="su-tile-label">จับคู่ผู้ย้ายได้</div><div class="su-tile-num" data-draw="num" data-source="mp_tot" data-field="moves">—</div><div class="su-tile-note">คน ทีมเดิมรับงานแทนได้</div></div>
+      <div class="su-tile"><div class="su-tile-label">ชั่วโมงเกินที่ลดได้</div><div class="su-tile-num" data-draw="num" data-source="mp_tot" data-field="relief">—</div><div class="su-tile-note">ชม./ปี ในปีแรก</div></div>
+      <div class="su-tile"><div class="su-tile-label">เปิดรับสมัครย้ายภายใน</div><div class="su-tile-num" data-draw="num" data-source="mp_tot" data-field="open">—</div><div class="su-tile-note">อัตรา ที่ยังไม่มีผู้ย้าย</div></div>
+      <div class="su-tile"><div class="su-tile-label">ผู้มีเวลาว่างพอจะย้ายได้</div><div class="su-tile-num" data-draw="num" data-source="mp_tot" data-field="pool">—</div><div class="su-tile-note">คน ภาระ ≤ 1,200 ชม./ปี</div></div>
+    </div>
+    <div class="su-grid">
+      <div class="su-card" id="mp-rules">
+        <h3>กติกาการย้ายงาน</h3>
+        <ul class="su-list">
+          <li><b>สมัครใจ</b> — ผู้ย้ายเลือกเองหรือตอบรับคำเชิญ ไม่ลดตำแหน่งหรือค่าตอบแทน และกลับต้นสังกัดได้ภายในช่วงทดลอง 3 เดือน</li>
+          <li><b>ไม่สร้างปัญหาใหม่</b> — ย้ายได้เมื่อเพื่อนร่วมทีมเดิมที่ทำงานใกล้เคียงกันรับงานแทนได้โดยไม่เกิน 1,800 ชม./ปี และไม่ดึงคนจากหน่วยงานที่ขาดคนเอง</li>
+          <li><b>ไม่ย้ายเจ้าของงานคนเดียว</b> — คนที่ทำงานคนเดียว ≥ 500 ชม./ปี ต้องมีผู้สำรองก่อน (ดูแท็บย้ายงาน)</li>
+          <li><b>ตรงงานก่อน</b> — Job Code เดียวกันย้ายได้เลย ส่วน Job Code ใกล้เคียงต้องฝึกงานคู่ 3 เดือน และนับประสิทธิภาพปีแรก 70%</li>
+          <li><b>สังกัดตามงานที่ทำ</b> — เมื่อย้ายถาวรให้ปรับ JD, OKR และผู้ประเมินผลงานตามหน่วยงานใหม่ ผังองค์กรไม่เปลี่ยน</li>
+        </ul>
+      </div>
+      <div class="su-card" id="mp-open">
+        <h3>หน่วยงานที่ต้องการคน</h3>
+        <div class="su-tablewrap">
+          <table class="su-table" data-source="mob3_open" data-row-key="unit">
+            <thead><tr>
+              <th data-field="unit">หน่วยงาน</th>
+              <th data-field="role" class="su-hide-sm">งานที่ต้องการ</th>
+              <th data-field="excess" class="n">ชม. เกิน</th>
+              <th data-field="fte" class="n">อัตรา</th>
+              <th data-field="matched" class="n">จับคู่ได้</th>
+              <th data-field="open" class="n">เปิดรับ</th>
+            </tr></thead>
+            <tbody data-draw="rows-mob3_open"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="su-card" id="mp-moves">
+      <h3>ผู้ย้ายที่จับคู่จากข้อมูล</h3>
+      <p class="su-note">ผู้รับงานแทน = เพื่อนร่วมทีมเดิมที่รับงานของผู้ย้ายไป (ชม./ปี) · เป็นข้อเสนอให้เชิญคุย ไม่ใช่คำสั่ง</p>
+      <div class="su-tablewrap su-scroll">
+        <table class="su-table" data-source="mob3_moves" data-row-key="id">
+          <thead><tr>
+            <th data-field="name">ผู้ย้าย</th>
+            <th data-field="from_unit">จาก</th>
+            <th data-field="to_unit">ไปที่</th>
+            <th data-field="kind">ลักษณะ</th>
+            <th data-field="relief" class="n">ชม. ที่ลดให้ปลายทาง</th>
+            <th data-field="handover" class="su-hide-sm">ผู้รับงานแทนที่ทีมเดิม</th>
+            <th data-field="reskill" class="su-hide-sm">การพัฒนาทักษะ</th>
+            <th data-field="approver" class="su-hide-sm">ผู้อนุมัติ</th>
+          </tr></thead>
+          <tbody data-draw="rows-mob3_moves"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="su-card" id="mp-pool">
+      <h3>ผู้มีเวลาว่างพอจะย้ายได้ (สำหรับประกาศรับสมัครภายใน)</h3>
+      <div class="su-tablewrap su-scroll">
+        <table class="su-table" data-source="mob3_pool" data-row-key="id">
+          <thead><tr>
+            <th data-field="name">ชื่อ</th>
+            <th data-field="unit">หน่วยงาน</th>
+            <th data-field="position" class="su-hide-sm">ตำแหน่ง</th>
+            <th data-field="load" class="n">ภาระ ชม./ปี</th>
+            <th data-field="can_go" class="su-hide-sm">ย้ายไปช่วยได้ที่</th>
+            <th data-field="status">สถานะ</th>
+          </tr></thead>
+          <tbody data-draw="rows-mob3_pool"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="su-card" id="mp-steps">
+      <h3>ขั้นตอนการย้ายงาน 6 ขั้น</h3>
+      <div class="su-tablewrap">
+        <table class="su-table" data-source="mob3_steps" data-row-key="step">
+          <thead><tr>
+            <th data-field="step">ขั้น</th>
+            <th data-field="period">ช่วง</th>
+            <th data-field="activity">สิ่งที่ทำ</th>
+            <th data-field="owner" class="su-hide-sm">ผู้รับผิดชอบ</th>
+            <th data-field="output" class="su-hide-sm">ผลลัพธ์</th>
+          </tr></thead>
+          <tbody data-draw="rows-mob3_steps"></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="su-note">การจับคู่ใช้ชั่วโมงงานจาก Job Analysis จึงเห็นเฉพาะคนที่พบใน JA — ประกาศรับสมัครภายในจะช่วยหาผู้ที่ข้อมูลไม่ครอบคลุม · ต้องตรวจกับระเบียบการโยกย้ายของ สวทช. ก่อนประกาศ</p>
   </section>
   <section class="su-page" id="okr" data-page role="tabpanel" hidden>
     <div class="su-sec">
@@ -713,9 +942,6 @@ dash.draw('rows-divisions', (tb) => {
     if (SU_MD) { td.append(' · '); td.appendChild(suLink(SU_MD + c + '.md', 'สรุป')); }
     tr.appendChild(td);
   });
-  document.querySelectorAll('a.su-xl').forEach((a) => { a.href = SU_XLSX + a.dataset.file; });
-  document.querySelectorAll('a.su-repo').forEach((a) => { a.href = SU_REPO; });
-  document.querySelectorAll('.su-gh').forEach((s) => { const h = !!window.SU_XLSX_BASE; if (s.hidden !== h) s.hidden = h; });
 });
 dash.draw('rows-top_skills', suTable('top_skills', ['skill', 'category', 'divisions', 'people', 'high_priority_rows'], 'skill', ['divisions', 'people', 'high_priority_rows']));
 dash.draw('rows-ai_roadmap', suTable('ai_roadmap', ['unit', 'div', 'people', 'l2', 'capstone_period', 'capstone', 'kr'], 'unit', ['people']));
@@ -813,9 +1039,13 @@ dash.calc('mob_tot', {
 dash.draw('rows-mobilize_steps', suTable('mobilize_steps', ['step', 'period', 'activity', 'owner', 'output'], 'step', []));
 dash.draw('rows-mobilize_checklist', suTable('mobilize_checklist', ['no', 'item', 'owner', 'when'], 'no', []));
 document.querySelectorAll('.su-mready').forEach((s) => s.addEventListener('change', () => dash.setParams({mready: s.value || null})));
+dash.onData(() => {
+  document.querySelectorAll('.su-mready').forEach((s) => { const v = dash.params().mready ?? ''; if (s.value !== v) s.value = v; });
+  document.querySelectorAll('.su-gh').forEach((s) => { const h = !!window.SU_XLSX_BASE; if (s.hidden !== h) s.hidden = h; });
+});
+
 dash.draw('rows-mobilize_people', (tb) => {
   const d = dash.data('mobilize_people');
-  document.querySelectorAll('.su-mready').forEach((s) => { const v = dash.params().mready ?? ''; if (s.value !== v) s.value = v; });
   if (d.status !== 'ok') { tb.replaceChildren(); return; }
   const f = dash.params().mready;
   const rows = d.data.filter((r) => !f || r.readiness === f);
@@ -865,6 +1095,121 @@ dash.draw('mobbars', (el) => {
     .attr('font-size', 10.5).attr('fill', 'var(--color-fg-muted)').text((r) => r.total);
   el.replaceChildren(svg.node()); tip = suTip(el);
 });
+
+dash.draw('grp-cards', (el) => {
+  const d = dash.data('org_groups');
+  if (d.status !== 'ok') { el.textContent = '—'; return; }
+  const mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  const line = (label, val) => { const p = mk('div'); p.append(mk('b', null, label + ': '), val); return p; };
+  el.replaceChildren(...d.data.map((r) => {
+    const c = mk('div', 'su-gcard');
+    const h = mk('h4'); h.append(`${r.group} · ${r.name}`, mk('span', 'su-pill', r.value_chain));
+    c.append(h, mk('div', 'p', r.purpose),
+      line('คน', `${r.people} คน · ผอ.ฝ่าย ${r.director}`),
+      line('มาจาก', r.from_units),
+      line('หน่วยงาน', r.units),
+      line('งานซ้ำซ้อนที่แก้', r.fixes));
+    return c;
+  }));
+});
+
+dash.calc('mk_tot', {
+  title: 'สรุป Mobilize โครงสร้างเดิม',
+  description: 'รวมชั่วโมงที่โอนได้ ต้องกระจายงาน และต้องลดด้วย AI จากแผนโอนงาน นับคู่ผู้สำรองและกลุ่มงานซ้ำซ้อน',
+  inputs: ['mob2_transfers', 'mob2_buddies', 'mob2_div', 'duplicate_work'],
+  fn: (mob2_transfers, mob2_buddies, mob2_div, duplicate_work) => {
+    const h = (f) => mob2_transfers.filter(f).reduce((s, r) => s + Number(r.hours), 0);
+    return [{
+      over_people: new Set(mob2_transfers.map((r) => r.from_id)).size,
+      excess: mob2_div.reduce((s, r) => s + Number(r.excess), 0),
+      moved: h((r) => r.to_id !== ''),
+      cross: h((r) => r.mode === 'ยืมตัวช่วยงานข้ามฝ่าย'),
+      delegate: h((r) => r.mode === 'มอบอำนาจ/กระจายงานให้ทีม'),
+      ai: h((r) => r.mode === 'ลดงานด้วย AI/ปรับกระบวนการ'),
+      buddies: mob2_buddies.filter((r) => r.buddy_id !== '').length,
+      teams: duplicate_work.length,
+      ja_people: mob2_div.reduce((s, r) => s + Number(r.ja_people), 0),
+      staff: mob2_div.reduce((s, r) => s + Number(r.staff), 0)
+    }];
+  }
+});
+dash.draw('rows-mob2_tools', suTable('mob2_tools', ['no', 'tool', 'when', 'authority', 'duration', 'note'], 'no', []));
+dash.draw('rows-mk_teams', suTable('duplicate_work', ['work_group', 'units', 'approach', 'priority'], 'work_group', [], 'priority'));
+const suRows = (id, keys, cols, numCols, hideCols, pillCol, pillCls) => (tb) => {
+  const d = dash.data(id);
+  if (d.status !== 'ok') { tb.replaceChildren(); return; }
+  tb.replaceChildren(...d.data.map((r) => {
+    const tr = document.createElement('tr');
+    tr.dataset.key = keys.map((k) => encodeURIComponent(r[k] ?? '')).join(',');
+    cols.forEach((c, i) => {
+      const td = document.createElement('td');
+      const v = r[c] == null ? '' : String(r[c]);
+      if (numCols.includes(c)) { td.className = 'n'; td.textContent = v === '' ? '—' : suFmt(Number(v)); }
+      else if (c === pillCol) { const s = document.createElement('span'); s.className = 'su-pill' + (pillCls(v) || ''); s.textContent = v; td.appendChild(s); }
+      else td.textContent = v;
+      if (i === 0) td.classList.add('key');
+      if (hideCols.includes(c)) td.classList.add('su-hide-sm');
+      tr.appendChild(td);
+    });
+    return tr;
+  }));
+};
+dash.draw('rows-mob2_transfers', suRows('mob2_transfers', ['from_id', 'to_id'], ['from_name', 'from_unit', 'from_hours', 'to_name', 'to_unit', 'hours', 'mode', 'authority'], ['from_hours', 'hours'], ['from_hours', 'to_unit', 'authority'], 'mode',
+  (v) => v.startsWith('โอน') || v.startsWith('มอบหมาย') ? ' ok' : v.startsWith('ยืม') ? ' warn' : v.startsWith('ลด') ? ' hot' : ''));
+dash.draw('rows-mob2_buddies', suRows('mob2_buddies', ['id'], ['name', 'unit', 'solo_hours', 'buddy_name', 'fit', 'train_hours', 'output'], ['solo_hours', 'train_hours'], ['solo_hours', 'fit', 'output'], null, () => ''));
+const SU_MK = [['excess', 'ชั่วโมงที่เกิน', 'var(--color-bad)'], ['spare', 'เวลาที่ยังรับงานได้', 'var(--color-ok)']];
+dash.draw('mk-legend', (el) => {
+  el.replaceChildren(...SU_MK.map(([, k, c]) => { const s = document.createElement('span'); const i = document.createElement('i'); i.style.background = c; s.append(i, k); return s; }));
+});
+dash.draw('mkbars', (el) => {
+  const d = dash.data('mob2_div');
+  if (d.status !== 'ok') { el.textContent = '—'; return; }
+  const rows = d.data.map((r) => ({div: r.div, excess: Number(r.excess), spare: Number(r.spare), ja: Number(r.ja_people), staff: Number(r.staff)}));
+  const W = Math.max(280, el.clientWidth || 400), left = 52, right = 44, rowH = 36, top = 4;
+  const H = top + rows.length * rowH + 24;
+  const x = d3.scaleLinear([0, d3.max(rows, (r) => Math.max(r.excess, r.spare)) || 1], [left, W - right]).nice();
+  const y = d3.scaleBand(rows.map((r) => r.div), [top, top + rows.length * rowH]).padding(0.2);
+  const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  svg.append('g').selectAll('line').data(x.ticks(5)).join('line')
+    .attr('x1', (v) => x(v)).attr('x2', (v) => x(v)).attr('y1', top).attr('y2', H - 22).attr('stroke', 'var(--cds-chart-grid)');
+  svg.append('g').selectAll('text').data(x.ticks(5)).join('text')
+    .attr('x', (v) => x(v)).attr('y', H - 6).attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((v) => suFmt(v));
+  svg.append('g').selectAll('text').data(rows).join('text')
+    .attr('x', 0).attr('y', (r) => y(r.div) + y.bandwidth() / 2 + 4).attr('font-size', 12).attr('fill', 'var(--color-fg)').text((r) => r.div);
+  let tip;
+  const bh = y.bandwidth() / 2;
+  SU_MK.forEach(([k, name, c], si) => {
+    const g = svg.append('g');
+    g.selectAll('rect').data(rows).join('rect')
+      .attr('x', left).attr('y', (r) => y(r.div) + si * bh).attr('height', bh - 2)
+      .attr('width', (r) => Math.max(0, x(r[k]) - left)).attr('rx', 2).attr('fill', c)
+      .on('pointermove', (ev, r) => tip && tip.show(ev, r.div, `${name}: ${suFmt(r[k])} ชม./ปี · พบใน JA ${r.ja}/${r.staff} คน`)).on('pointerleave', () => tip && tip.hide());
+    g.selectAll('text').data(rows).join('text')
+      .attr('x', (r) => x(r[k]) + 4).attr('y', (r) => y(r.div) + si * bh + bh / 2 + 3)
+      .attr('font-size', 10.5).attr('fill', 'var(--color-fg-muted)').text((r) => suFmt(r[k]));
+  });
+  el.replaceChildren(svg.node()); tip = suTip(el);
+});
+
+dash.calc('mp_tot', {
+  title: 'สรุปการย้ายคนในโครงสร้างเดิม',
+  description: 'นับหน่วยงานและอัตราที่ขาด ผู้ย้ายที่จับคู่ ชั่วโมงที่ลดได้ อัตราที่เปิดรับ และผู้มีเวลาว่าง',
+  inputs: ['mob3_open', 'mob3_moves', 'mob3_pool'],
+  fn: (mob3_open, mob3_moves, mob3_pool) => [{
+    units: mob3_open.length,
+    fte: mob3_open.reduce((s, r) => s + Number(r.fte), 0),
+    moves: mob3_moves.length,
+    relief: mob3_moves.reduce((s, r) => s + Number(r.relief), 0),
+    open: mob3_open.reduce((s, r) => s + Number(r.open), 0),
+    pool: mob3_pool.length
+  }]
+});
+dash.draw('rows-mob3_open', suTable('mob3_open', ['unit', 'role', 'excess', 'fte', 'matched', 'open'], 'unit', ['excess', 'fte', 'matched', 'open']));
+dash.draw('rows-mob3_steps', suTable('mob3_steps', ['step', 'period', 'activity', 'owner', 'output'], 'step', []));
+dash.draw('rows-mob3_moves', suRows('mob3_moves', ['id'], ['name', 'from_unit', 'to_unit', 'kind', 'relief', 'handover', 'reskill', 'approver'], ['relief'], ['handover', 'reskill', 'approver'], 'kind',
+  (v) => v.includes('ตำแหน่งเดิม') ? ' ok' : ' warn'));
+dash.draw('rows-mob3_pool', suRows('mob3_pool', ['id'], ['name', 'unit', 'position', 'load', 'can_go', 'status'], ['load'], ['position', 'can_go'], 'status',
+  (v) => v === 'จับคู่แล้ว' ? ' ok' : v === 'เหมาะกับตำแหน่งที่เปิด' ? ' warn' : ''));
 dash.draw('person-head', (el) => {
   const d = dash.data('people'), id = dash.params().person;
   const r = d.status === 'ok' && id ? d.data.find((x) => x.id === id) : null;
