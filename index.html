@@ -121,6 +121,10 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
 .su-table td.xl { white-space: nowrap; }
 .su-table a, .su-links a, .su-person-head a { color: var(--color-fg); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--color-fg-muted); }
 .su-table a:hover, .su-links a:hover { text-decoration-color: var(--color-fg); }
+.su-list { margin: 0; padding-left: 1.2em; display: grid; gap: var(--cds-gap-sm); line-height: 1.55; }
+.su-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.su-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.su-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 .su-smbar { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-xs) var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
 .su-smbar a { color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 2px 10px; text-decoration: none; background: var(--color-panel); white-space: nowrap; }
 .su-smbar a:hover { border-color: var(--color-fg-muted); }
@@ -164,6 +168,7 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
     <button class="su-tab" role="tab" data-tab="ai-roadmap" aria-selected="false">AI Roadmap</button>
     <button class="su-tab" role="tab" data-tab="duplicates" aria-selected="false">งานซ้ำซ้อน</button>
     <button class="su-tab" role="tab" data-tab="structure" aria-selected="false">โครงสร้างองค์กร</button>
+    <button class="su-tab" role="tab" data-tab="mobilize" aria-selected="false">Mobilize</button>
     <button class="su-tab" role="tab" data-tab="okr" aria-selected="false">OKR 2570</button>
     <button class="su-tab" role="tab" data-tab="people" aria-selected="false">รายบุคคล</button>
     <button class="su-tab" role="tab" data-tab="gaps" aria-selected="false">ข้อมูลที่ขาด</button>
@@ -398,6 +403,98 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
     </div>
   </section>
 
+
+  <section class="su-page" id="mobilize" data-page role="tabpanel" hidden>
+    <div class="su-sec">
+      <h2 id="mob-title">Mobilize บุคลากรตามโครงสร้างใหม่</h2>
+      <p>มีผู้ได้รับผลกระทบ <b data-draw="num" data-source="mob_tot" data-field="affected">—</b> คน: ย้ายสังกัดข้ามฝ่าย <b data-draw="num" data-source="mob_tot" data-field="cross">—</b> คน และเปลี่ยนภายในฝ่ายเดิม <b data-draw="num" data-source="mob_tot" data-field="in_div">—</b> คน ทุกหน่วยงานย้ายไปทั้งทีมพร้อมงาน (ยกเว้นตำแหน่ง ผอ.ฝ่ายที่รอผู้บริหารตัดสินใจ) จึงใช้แนวทาง <b>"ทีมเสมือนก่อน ย้ายทางการทีหลัง"</b> คือเริ่มทำงานในทีมใหม่ระหว่าง มี.ค.–เม.ย. 2570 โดยยังสังกัดเดิม แล้วออกคำสั่งย้ายพร้อมกันเมื่อขึ้นปีงบ 2571</p>
+    </div>
+    <div class="su-tiles" id="mob-tiles">
+      <div class="su-tile"><div class="su-tile-label">ผู้ได้รับผลกระทบ</div><div class="su-tile-num" data-draw="num" data-source="mob_tot" data-field="affected">—</div><div class="su-tile-note">คน จาก 115 คน</div></div>
+      <div class="su-tile"><div class="su-tile-label">พร้อมย้าย</div><div class="su-tile-num" data-draw="num" data-source="mob_tot" data-field="ready">—</div><div class="su-tile-note">ปรับ JD/OKR แล้วย้ายได้</div></div>
+      <div class="su-tile"><div class="su-tile-label">ต้องปรับภาระงานก่อน</div><div class="su-tile-num" data-draw="num" data-source="mob_tot" data-field="workload">—</div><div class="su-tile-note">ภาระเกิน 2,000 ชม./ปี</div></div>
+      <div class="su-tile"><div class="su-tile-label">ต้องมีผู้สำรองก่อน</div><div class="su-tile-num" data-draw="num" data-source="mob_tot" data-field="backup">—</div><div class="su-tile-note">งานอยู่กับคนเดียว / ตำแหน่งเดียว</div></div>
+      <div class="su-tile"><div class="su-tile-label">รอผู้บริหารตัดสินใจ</div><div class="su-tile-num" data-draw="num" data-source="mob_tot" data-field="exec">—</div><div class="su-tile-note">ตำแหน่ง ผอ.ฝ่าย</div></div>
+      <div class="su-tile"><div class="su-tile-label">หัวหน้างานที่ต้องแต่งตั้ง</div><div class="su-tile-num" data-draw="num" data-source="mob_tot" data-field="vacant">—</div><div class="su-tile-note">หน่วยงานในผังใหม่ที่ยังว่าง</div></div>
+    </div>
+    <div class="su-grid">
+      <div class="su-card" id="mob-summary">
+        <h3>สรุปแนวทาง</h3>
+        <ul class="su-list">
+          <li><b>ย้ายเป็นทีม ไม่ย้ายเป็นคน</b> — ทุกหน่วยงานย้ายทั้งงาน (RISD, SAPD, CS, IBL, BAM) งานจึงไม่ขาดมือ และลดแรงต้านจากการแยกคนออกจากทีม</li>
+          <li><b>2 ระลอก</b> — มี.ค. 2570 เปลี่ยนภายในฝ่ายก่อน (งานทะเบียนสัญญากลาง, รวม GAD+SEC) เพราะ ผอ.ฝ่ายสั่งการได้เอง · เม.ย. 2570 ทีมเสมือนข้ามฝ่าย</li>
+          <li><b>เงื่อนไขก่อนย้ายทางการ</b> — คนที่ภาระเกินต้องตกลงงานที่หยุดหรือโอนออกก่อน และงานที่อยู่กับคนเดียวต้องมีคู่มือกับผู้สำรอง</li>
+          <li><b>ผู้บริหารต้องตัดสินใจ</b> ตำแหน่ง ผอ.ฝ่าย G2 และหัวหน้างานที่ว่างภายใน ส.ค. 2570 ก่อนคำสั่งย้ายทางการเดือน ต.ค. 2570</li>
+          <li><b>ประเด็นที่มักพลาด</b> — ต้องกำหนดให้ชัดว่าใครประเมินผลงานรอบปี 2570 ของคนในทีมเสมือน และต้องโอน cost center กับสิทธิ์อนุมัติในระบบพร้อมคำสั่ง</li>
+        </ul>
+      </div>
+      <div class="su-card" id="mob-chart">
+        <h3>ปลายทางและความพร้อมรายหน่วยงาน</h3>
+        <p class="su-note">จำนวนคนที่ย้ายเข้าหน่วยงานในผังใหม่ แยกตามความพร้อม</p>
+        <div class="su-legend" data-draw="mob-legend" data-source="mobilize_people"></div>
+        <div class="su-chart" data-draw="mobbars" data-source="mobilize_people">—</div>
+      </div>
+    </div>
+    <div class="su-card" id="mob-steps">
+      <h3>ขั้นตอน Mobilize 8 ขั้น (ม.ค. – ต.ค. 2570)</h3>
+      <div class="su-tablewrap">
+        <table class="su-table" data-source="mobilize_steps" data-row-key="step">
+          <thead><tr>
+            <th data-field="step">ขั้น</th>
+            <th data-field="period">ช่วง</th>
+            <th data-field="activity">สิ่งที่ทำ</th>
+            <th data-field="owner" class="su-hide-sm">ผู้รับผิดชอบ</th>
+            <th data-field="output" class="su-hide-sm">ผลลัพธ์ที่ต้องได้</th>
+          </tr></thead>
+          <tbody data-draw="rows-mobilize_steps"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="su-card" id="mob-people">
+      <h3>แผนโยกย้ายรายบุคคล</h3>
+      <p class="su-note">เริ่มทีมใหม่ = วันที่เริ่มทำงานกับทีมปลายทาง (ยังสังกัดเดิม) · ย้ายทางการ = วันที่คำสั่งย้ายมีผล</p>
+      <div class="su-controls">
+        <select class="su-mready" aria-label="ความพร้อม">
+          <option value="">ทุกระดับความพร้อม</option>
+          <option value="พร้อม">พร้อม</option>
+          <option value="ต้องปรับภาระงานก่อน">ต้องปรับภาระงานก่อน</option>
+          <option value="ต้องมีผู้สำรองก่อน">ต้องมีผู้สำรองก่อน</option>
+          <option value="รอผู้บริหารตัดสินใจ">รอผู้บริหารตัดสินใจ</option>
+        </select>
+      </div>
+      <div class="su-tablewrap su-scroll">
+        <table class="su-table" data-source="mobilize_people" data-row-key="id">
+          <thead><tr>
+            <th data-field="id">รหัส</th>
+            <th data-field="name">ชื่อ</th>
+            <th data-field="old_unit">สังกัดเดิม</th>
+            <th data-field="new_unit_code">ไปที่</th>
+            <th data-field="change" class="su-hide-sm">ลักษณะ</th>
+            <th data-field="start">เริ่มทีมใหม่</th>
+            <th data-field="formal" class="su-hide-sm">ย้ายทางการ</th>
+            <th data-field="readiness">ความพร้อม</th>
+            <th data-field="action" class="su-hide-sm">สิ่งที่ต้องทำก่อนย้าย</th>
+          </tr></thead>
+          <tbody data-draw="rows-mobilize_people"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="su-card" id="mob-checklist">
+      <h3>Checklist รายคนก่อนคำสั่งย้ายมีผล</h3>
+      <div class="su-tablewrap">
+        <table class="su-table" data-source="mobilize_checklist" data-row-key="no">
+          <thead><tr>
+            <th data-field="no">ข้อ</th>
+            <th data-field="item">รายการ</th>
+            <th data-field="owner">ผู้รับผิดชอบ</th>
+            <th data-field="when" class="su-hide-sm">ทำเมื่อ</th>
+          </tr></thead>
+          <tbody data-draw="rows-mobilize_checklist"></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="su-note">แผนนี้เป็นข้อเสนอจากข้อมูล StaffList, JA และโครงสร้างที่เสนอ ยังต้องตรวจกับระเบียบการโอนย้ายและการตั้ง/ยุบหน่วยงานของ สวทช. และคุยกับผู้ได้รับผลกระทบทุกคนก่อนประกาศ</p>
+  </section>
   <section class="su-page" id="okr" data-page role="tabpanel" hidden>
     <div class="su-sec">
       <h2>OKR ปีงบประมาณ 2570 รายฝ่าย (ร่าง)</h2>
@@ -434,7 +531,7 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
   <section class="su-page" id="people" data-page role="tabpanel" hidden>
     <div class="su-sec">
       <h2>ข้อมูลรายบุคคล</h2>
-      <p>เลือกฝ่ายหรือค้นหาชื่อ แล้วคลิกแถวเพื่อดูทักษะ ระดับเป้าหมาย และแผนพัฒนา 70:20:10 ของคนนั้น ระดับเป้าหมายมาจาก Role Profile ตาม Personal Grade ส่วนระดับปัจจุบันรอหัวหน้างานประเมินในไฟล์ Skill Matrix</p>
+      <p>เลือกฝ่ายหรือค้นหาชื่อ แล้วคลิกแถวเพื่อดูทักษะ ระดับเป้าหมาย และแผนพัฒนา 70:20:10 ของคนนั้น ระดับเป้าหมายมาจาก Role Profile ของตำแหน่ง ส่วนระดับปัจจุบันรอหัวหน้างานประเมินในไฟล์ Skill Matrix</p>
       <p class="su-privacy">ข้อมูลส่วนบุคคล — ใช้เพื่อการพัฒนาบุคลากรเท่านั้น ทุกคนที่เปิดหน้านี้ได้จะเห็นข้อมูลทั้งหมด</p>
       <div class="su-controls">
         <select class="su-div" data-draw="div-select" data-source="divisions" aria-label="ฝ่าย"></select>
@@ -452,7 +549,6 @@ html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); fon
               <th data-field="div" class="su-hide-sm">ฝ่าย</th>
               <th data-field="sec">งาน</th>
               <th data-field="position" class="su-hide-sm">ตำแหน่ง</th>
-              <th data-field="grade" class="n">Grade</th>
               <th data-field="high" class="n">Priority สูง</th>
               <th data-field="ja_hours" class="n su-hide-sm">ชม./ปี</th>
               <th data-field="risk">ความเสี่ยง</th>
@@ -654,7 +750,7 @@ dash.draw('rows-people', (tb) => {
   if (d.status !== 'ok') { tb.replaceChildren(); return; }
   const p = dash.params(), q = (p.q || '').toLowerCase();
   const rows = d.data.filter((r) => (!p.div || r.div === p.div) && (!q || [r.id, r.name, r.sec, r.position, r.div].join(' ').toLowerCase().includes(q)));
-  const cols = ['id', 'name', 'div', 'sec', 'position', 'grade', 'high', 'ja_hours', 'risk'];
+  const cols = ['id', 'name', 'div', 'sec', 'position', 'high', 'ja_hours', 'risk'];
   tb.replaceChildren(...rows.map((r) => {
     const tr = document.createElement('tr');
     tr.dataset.key = r.id;
@@ -662,7 +758,7 @@ dash.draw('rows-people', (tb) => {
     cols.forEach((c) => {
       const td = document.createElement('td');
       const v = r[c] == null ? '' : String(r[c]);
-      if (['grade', 'high', 'ja_hours'].includes(c)) { td.className = 'n'; td.textContent = v === '' ? '' : suFmt(Number(v)); }
+      if (['high', 'ja_hours'].includes(c)) { td.className = 'n'; td.textContent = v === '' ? '' : suFmt(Number(v)); }
       else if (c === 'risk') { const s = document.createElement('span'); s.className = 'su-pill' + (v.includes('คนเดียว') ? ' hot' : v.includes('เกิน') || v.includes('เดียวในฝ่าย') ? ' warn' : ''); s.textContent = v; td.appendChild(s); }
       else td.textContent = v;
       if (c === 'id') td.classList.add('key');
@@ -694,14 +790,89 @@ dash.draw('sm-div', (el) => {
   });
   el.replaceChildren(...kids);
 });
+
+const SU_READY = [['พร้อม', 'var(--color-ok)'], ['ต้องปรับภาระงานก่อน', 'var(--color-warn)'], ['ต้องมีผู้สำรองก่อน', 'var(--color-bad)'], ['รอผู้บริหารตัดสินใจ', 'var(--cds-chart-muted)']];
+dash.calc('mob_tot', {
+  title: 'สรุปการ Mobilize',
+  description: 'นับผู้ได้รับผลกระทบตามลักษณะการย้ายและความพร้อม และนับหน่วยงานในผังใหม่ที่หัวหน้ายังว่าง',
+  inputs: ['mobilize_people', 'new_units'],
+  fn: (mobilize_people, new_units) => {
+    const n = (f) => mobilize_people.filter(f).length;
+    return [{
+      affected: mobilize_people.length,
+      cross: n((r) => !r.change.includes('ฝ่ายเดิม')),
+      in_div: n((r) => r.change.includes('ฝ่ายเดิม')),
+      ready: n((r) => r.readiness === 'พร้อม'),
+      workload: n((r) => r.readiness === 'ต้องปรับภาระงานก่อน'),
+      backup: n((r) => r.readiness === 'ต้องมีผู้สำรองก่อน'),
+      exec: n((r) => r.readiness === 'รอผู้บริหารตัดสินใจ'),
+      vacant: new_units.filter((u) => u.head.startsWith('ว่าง')).length
+    }];
+  }
+});
+dash.draw('rows-mobilize_steps', suTable('mobilize_steps', ['step', 'period', 'activity', 'owner', 'output'], 'step', []));
+dash.draw('rows-mobilize_checklist', suTable('mobilize_checklist', ['no', 'item', 'owner', 'when'], 'no', []));
+document.querySelectorAll('.su-mready').forEach((s) => s.addEventListener('change', () => dash.setParams({mready: s.value || null})));
+dash.draw('rows-mobilize_people', (tb) => {
+  const d = dash.data('mobilize_people');
+  document.querySelectorAll('.su-mready').forEach((s) => { const v = dash.params().mready ?? ''; if (s.value !== v) s.value = v; });
+  if (d.status !== 'ok') { tb.replaceChildren(); return; }
+  const f = dash.params().mready;
+  const rows = d.data.filter((r) => !f || r.readiness === f);
+  const cls = {'พร้อม': ' ok', 'ต้องปรับภาระงานก่อน': ' warn', 'ต้องมีผู้สำรองก่อน': ' hot', 'รอผู้บริหารตัดสินใจ': ''};
+  tb.replaceChildren(...rows.map((r) => {
+    const tr = document.createElement('tr');
+    ['id', 'name', 'old_unit', 'new_unit_code', 'change', 'start', 'formal', 'readiness', 'action'].forEach((c) => {
+      const td = document.createElement('td');
+      if (c === 'readiness') { const s = document.createElement('span'); s.className = 'su-pill' + (cls[r[c]] ?? ''); s.textContent = r[c]; td.appendChild(s); }
+      else if (c === 'new_unit_code') { td.textContent = r[c]; td.title = r.new_unit; }
+      else td.textContent = r[c];
+      if (c === 'id') td.classList.add('key');
+      if (['change', 'formal', 'action'].includes(c)) td.classList.add('su-hide-sm');
+      tr.appendChild(td);
+    });
+    return tr;
+  }));
+});
+dash.draw('mob-legend', (el) => {
+  el.replaceChildren(...SU_READY.map(([k, c]) => { const s = document.createElement('span'); const i = document.createElement('i'); i.style.background = c; s.append(i, k); return s; }));
+});
+dash.draw('mobbars', (el) => {
+  const d = dash.data('mobilize_people');
+  if (d.status !== 'ok') { el.textContent = '—'; return; }
+  const units = []; d.data.forEach((r) => { if (!units.includes(r.new_unit_code)) units.push(r.new_unit_code); });
+  const rows = units.map((u) => { const o = {u, name: d.data.find((r) => r.new_unit_code === u).new_unit}; SU_READY.forEach(([k]) => { o[k] = d.data.filter((r) => r.new_unit_code === u && r.readiness === k).length; }); o.total = SU_READY.reduce((s, [k]) => s + o[k], 0); return o; });
+  const W = Math.max(280, el.clientWidth || 400), left = 64, right = 28, rowH = 30, top = 4;
+  const H = top + rows.length * rowH + 24;
+  const x = d3.scaleLinear([0, d3.max(rows, (r) => r.total) || 1], [left, W - right]).nice();
+  const y = d3.scaleBand(units, [top, top + rows.length * rowH]).padding(0.25);
+  const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  svg.append('g').selectAll('line').data(x.ticks(5)).join('line')
+    .attr('x1', (v) => x(v)).attr('x2', (v) => x(v)).attr('y1', top).attr('y2', H - 22).attr('stroke', 'var(--cds-chart-grid)');
+  svg.append('g').selectAll('text').data(x.ticks(5)).join('text')
+    .attr('x', (v) => x(v)).attr('y', H - 6).attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((v) => v);
+  svg.append('g').selectAll('text').data(rows).join('text')
+    .attr('x', 0).attr('y', (r) => y(r.u) + y.bandwidth() / 2 + 4).attr('font-size', 12).attr('fill', 'var(--color-fg)').text((r) => r.u);
+  let tip;
+  const segs = [];
+  rows.forEach((r) => { let acc = 0; SU_READY.forEach(([k, c]) => { if (r[k]) segs.push({r, k, c, x0: acc, v: r[k]}); acc += r[k]; }); });
+  svg.append('g').selectAll('rect').data(segs).join('rect')
+    .attr('x', (s) => x(s.x0)).attr('y', (s) => y(s.r.u)).attr('height', y.bandwidth())
+    .attr('width', (s) => Math.max(0, x(s.x0 + s.v) - x(s.x0) - 1)).attr('fill', (s) => s.c)
+    .on('pointermove', (ev, s) => tip && tip.show(ev, `${s.r.u} · ${s.r.name}`, `${s.k}: ${s.v} คน`)).on('pointerleave', () => tip && tip.hide());
+  svg.append('g').selectAll('text').data(rows).join('text')
+    .attr('x', (r) => x(r.total) + 4).attr('y', (r) => y(r.u) + y.bandwidth() / 2 + 4)
+    .attr('font-size', 10.5).attr('fill', 'var(--color-fg-muted)').text((r) => r.total);
+  el.replaceChildren(svg.node()); tip = suTip(el);
+});
 dash.draw('person-head', (el) => {
   const d = dash.data('people'), id = dash.params().person;
   const r = d.status === 'ok' && id ? d.data.find((x) => x.id === id) : null;
   if (!r) { el.textContent = '—'; return; }
   const b = (t) => { const x = document.createElement('b'); x.textContent = t; return x; };
-  const parts = [b(r.name), ` · ${r.position} · ${r.div}/${r.sec} · Grade ${r.grade || 'ไม่มีข้อมูล'} (${r.grade_status}) · หัวหน้างาน ${r.supervisor}`, document.createElement('br'),
+  const parts = [b(r.name), ` · ${r.position} · ${r.div}/${r.sec} · หัวหน้างาน ${r.supervisor}`, document.createElement('br'),
     `ทักษะ ${r.skill_rows} รายการ: Priority สูง ${r.high} · ปานกลาง ${r.medium} · ต่ำ ${r.low}`, document.createElement('br'),
-    `ความเสี่ยง: ${r.risk}${r.solo_hours ? ` (งานที่ทำคนเดียว ~${suFmt(Number(r.solo_hours))} ชม./ปี)` : ''}`, document.createElement('br'),
+    `ความเสี่ยง: ${r.risk}${Number(r.solo_hours) > 0 ? ` (งานที่ทำคนเดียว ~${suFmt(Number(r.solo_hours))} ชม./ปี)` : ''}`, document.createElement('br'),
     'Skill Matrix: ', suLink(SU_XLSX + 'Skill_Matrix_' + r.div + '_2570.xlsx', `Skill_Matrix_${r.div}_2570.xlsx`), ` (ชีต 04_ประเมินรายคน รหัส ${r.id})`];
   el.replaceChildren(...parts);
 });
